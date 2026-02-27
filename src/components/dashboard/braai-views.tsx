@@ -232,8 +232,18 @@ function CalendarView({ braais }: { braais: Braai[] }) {
 
 type View = 'grid' | 'calendar'
 
+const VIEW_STORAGE_KEY = 'braai-dashboard-view'
+
 export function BraaiViews({ braais }: { braais: Braai[] }) {
-  const [view, setView] = useState<View>('grid')
+  const [view, setView] = useState<View>(() => {
+    if (typeof window === 'undefined') return 'grid'
+    return (localStorage.getItem(VIEW_STORAGE_KEY) as View) ?? 'grid'
+  })
+
+  function changeView(v: View) {
+    setView(v)
+    localStorage.setItem(VIEW_STORAGE_KEY, v)
+  }
 
   return (
     <div className="space-y-4">
@@ -244,14 +254,14 @@ export function BraaiViews({ braais }: { braais: Braai[] }) {
         </p>
         <div className="flex items-center gap-1 rounded-md border p-0.5">
           <button
-            onClick={() => setView('grid')}
+            onClick={() => changeView('grid')}
             className={`rounded p-1.5 transition-colors ${view === 'grid' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             aria-label="Grid view"
           >
             <LayoutGrid className="h-4 w-4" />
           </button>
           <button
-            onClick={() => setView('calendar')}
+            onClick={() => changeView('calendar')}
             className={`rounded p-1.5 transition-colors ${view === 'calendar' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             aria-label="Calendar view"
           >
