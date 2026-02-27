@@ -82,7 +82,7 @@ export default async function DashboardPage() {
                       <Link href={`/braai/${braai.slug}`} target="_blank" className="flex-1">
                         <Button variant="ghost" size="sm" className="w-full gap-1.5">
                           <ExternalLink className="h-3.5 w-3.5" />
-                          Preview
+                          Preview invite
                         </Button>
                       </Link>
                       <CopyLinkButton slug={braai.slug} />
