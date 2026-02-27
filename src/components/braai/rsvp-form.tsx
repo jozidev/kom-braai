@@ -5,7 +5,7 @@ import { submitRsvpAction, cancelRsvpAction, type RsvpFormState } from '@/app/(p
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Check, Minus, Plus, X } from 'lucide-react'
+import { Check, Minus, Plus, X, Flame } from 'lucide-react'
 import type { Rsvp, SupplyItem } from '@/lib/types'
 
 type RsvpFormProps = {
@@ -62,11 +62,12 @@ export function RsvpForm({
   // Already RSVP'd — show edit/cancel state
   if (existingRsvp && existingRsvp.status === 'attending') {
     return (
-      <div className="rounded-xl bg-white/80 p-6 shadow-sm space-y-4">
+      <div className="rounded-xl bg-stone-50 p-4 space-y-4">
         <div className="flex items-center gap-2">
           <Check className="h-5 w-5 text-green-600" />
           <p className="font-semibold">
-            You&apos;re coming, {existingRsvp.attendee_name}! 🔥
+            You&apos;re coming, {existingRsvp.attendee_name}!
+            <Flame className="inline h-4 w-4 text-orange-500 ml-1" aria-hidden="true" />
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -92,9 +93,12 @@ export function RsvpForm({
 
   if (state.success) {
     return (
-      <div className="rounded-xl bg-white/80 p-6 text-center shadow-sm">
+      <div className="rounded-xl bg-stone-50 p-4 text-center">
         <Check className="mx-auto mb-2 h-10 w-10 text-green-600" />
-        <p className="text-lg font-bold">Lekker, you&apos;re in! 🔥</p>
+        <p className="text-lg font-bold flex items-center justify-center gap-1.5">
+          Lekker, you&apos;re in!
+          <Flame className="h-5 w-5 text-orange-500" aria-hidden="true" />
+        </p>
         <p className="text-sm text-muted-foreground mt-1">See you at the braai.</p>
       </div>
     )
@@ -102,7 +106,7 @@ export function RsvpForm({
 
   if (isFull) {
     return (
-      <div className="rounded-xl bg-white/80 p-6 text-center shadow-sm">
+      <div className="rounded-xl bg-stone-50 p-4 text-center">
         <p className="font-semibold text-destructive">This braai is full.</p>
         <p className="text-sm text-muted-foreground mt-1">The organiser set a headcount limit.</p>
       </div>
@@ -110,8 +114,8 @@ export function RsvpForm({
   }
 
   return (
-    <div className="rounded-xl bg-white/80 p-6 shadow-sm space-y-5">
-      <h2 className="text-lg font-bold">RSVP</h2>
+    <div className="rounded-xl bg-stone-50 p-4 space-y-5">
+      <h2 className="text-lg font-bold text-stone-900">RSVP</h2>
 
       {state.error && (
         <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -201,7 +205,7 @@ export function RsvpForm({
         )}
 
         <Button type="submit" size="lg" disabled={isPending} className="w-full">
-          {isPending ? 'RSVPing...' : "I'm coming! 🔥"}
+          {isPending ? 'RSVPing...' : <><Flame className="h-4 w-4 mr-2 inline" aria-hidden="true" />I&apos;m coming!</>}
         </Button>
       </form>
     </div>

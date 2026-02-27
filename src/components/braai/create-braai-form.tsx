@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { AddressPicker } from '@/components/braai/address-picker'
 import { PREDEFINED_SUPPLY_ITEMS, SUPPLY_CATEGORIES, EVENT_OPTION_DEFINITIONS } from '@/lib/config/event-options'
 import type { SupplyCategory } from '@/lib/config/event-options'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, Flame } from 'lucide-react'
 
 type SupplyItemDraft = {
   item_name: string
@@ -310,7 +310,7 @@ export function CreateBraaiForm() {
 
       {/* ── Submit ── */}
       <Button type="submit" size="lg" disabled={isPending} className="w-full sm:w-auto">
-        {isPending ? 'Creating braai...' : '🔥 Create Braai'}
+        {isPending ? 'Creating braai...' : <><Flame className="h-4 w-4 mr-2 inline" aria-hidden="true" />Create Braai</>}
       </Button>
     </form>
   )

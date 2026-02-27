@@ -91,10 +91,8 @@ export default async function BraaiInvitePage({ params }: PageProps) {
     ? (await getRsvpByToken(braai.id, browserToken)).data
     : null
 
-  const weatherCondition = braai.status === 'cancelled' ? 'rainy' : weather.condition
-
   return (
-    <WeatherBackground condition={weatherCondition}>
+    <WeatherBackground>
       <RealtimeRefresher braaiId={braai.id} />
       {braai.status === 'cancelled' ? (
         <CancelledCard braai={braai} inviteUrl={inviteUrl} />

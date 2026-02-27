@@ -1,14 +1,13 @@
 import Link from 'next/link'
-import { Calendar, MapPin, Users, ExternalLink, Download } from 'lucide-react'
+import { Calendar, MapPin, Users, ExternalLink, Download, Baby, Ban, ScrollText, Sparkles } from 'lucide-react'
 import { OrganiserAvatar } from '@/components/common/organiser-avatar'
-import { WEATHER_EMOJIS } from '@/lib/services/weather-service'
 import { RsvpForm } from '@/components/braai/rsvp-form'
 import { DatePollVote } from '@/components/braai/date-poll-vote'
 import { WhatsAppShare } from '@/components/braai/whatsapp-share'
+import { WeatherScene } from '@/components/braai/weather-scene'
 import type { BraaiWithDetails, Rsvp } from '@/lib/types'
 import type { WeatherData } from '@/lib/services/weather-service'
 import type { PollOptionWithVotes } from '@/lib/repositories/date-poll-repository'
-import { EVENT_OPTION_DEFINITIONS } from '@/lib/config/event-options'
 
 type InviteCardProps = {
   braai: BraaiWithDetails
@@ -33,6 +32,9 @@ function formatTime(timeStr: string | null): string {
   return d.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })
 }
 
+// Inner section card — sits inside the main white card
+const INNER = 'rounded-xl bg-stone-50 p-4 space-y-3'
+
 export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUrl }: InviteCardProps) {
   const isCancelled = braai.status === 'cancelled'
   const isPoll = braai.date_mode === 'poll' && !braai.event_date
@@ -41,7 +43,6 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
   const totalHeadcount = attendingRsvps.reduce((s, r) => s + r.attendee_count, 0)
   const isFull = braai.max_attendees != null && totalHeadcount >= braai.max_attendees
 
-  // Event option values
   const options = (braai.event_options ?? {}) as Record<string, string | boolean>
   const kidsPolicy = options['kids_policy'] as string | undefined
   const showEtiquette = Boolean(options['show_etiquette_link'])
@@ -55,191 +56,208 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
     : null
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-8 space-y-5">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <p className="text-5xl">🔥</p>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow">
-          {braai.title}
-        </h1>
-        {braai.description && (
-          <p className="text-white/80 text-sm">{braai.description}</p>
-        )}
-        {/* Weather chip */}
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-black/20 px-3 py-1 text-sm text-white backdrop-blur-sm">
-          <span aria-hidden="true">{WEATHER_EMOJIS[weather.condition]}</span>
-          <span>{weather.description}</span>
-          {weather.temperatureCelsius !== null && (
-            <span className="font-semibold">{weather.temperatureCelsius}°C</span>
-          )}
-        </div>
-      </div>
+    <div className="mx-auto max-w-lg px-4 pt-10 pb-20 space-y-4">
 
-      {/* Event details card */}
-      <div className="rounded-xl bg-white/85 p-5 shadow-sm space-y-3 backdrop-blur-sm">
-        {/* Date */}
-        <div className="flex items-start gap-3">
-          <Calendar className="mt-0.5 h-5 w-5 flex-shrink-0 text-muted-foreground" />
-          <div>
-            <p className="font-semibold">{isPoll ? 'Date to be confirmed' : formatDate(braai.event_date)}</p>
-            {!isPoll && braai.event_time && (
-              <p className="text-sm text-muted-foreground">{formatTime(braai.event_time)}</p>
-            )}
-          </div>
-        </div>
+      {/* ── Main card ── */}
+      <div className="rounded-2xl bg-white shadow-2xl shadow-amber-950/20 overflow-hidden">
 
-        {/* Location */}
-        <div className="flex items-start gap-3">
-          <MapPin className="mt-0.5 h-5 w-5 flex-shrink-0 text-muted-foreground" />
-          <div className="min-w-0">
-            <p className="font-semibold">{braai.venue_name}</p>
-            <p className="text-sm text-muted-foreground truncate">{braai.venue_address}</p>
-            <a
-              href={mapsDirectionsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm text-primary font-medium mt-0.5 hover:underline"
-            >
-              Get directions <ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
-        </div>
-
-        {/* Headcount */}
-        {totalHeadcount > 0 && (
-          <div className="flex items-center gap-3">
-            <Users className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-            <p className="text-sm">
-              <span className="font-semibold">{totalHeadcount}</span> people coming
-            </p>
-          </div>
-        )}
-
-        {/* Organiser */}
-        <div className="border-t pt-3 flex items-center gap-3">
-          <OrganiserAvatar
-            avatarUrl={braai.organiser.avatar_url}
-            displayName={braai.organiser.display_name}
-            size={36}
-            className="flex-shrink-0"
-          />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold">{braai.organiser.display_name}</p>
-            <p className="text-xs text-muted-foreground">{braai.organiser.braai_title}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Map embed */}
-      {mapsEmbedUrl && (
-        <div className="rounded-xl overflow-hidden shadow-sm h-44">
-          <iframe
-            src={mapsEmbedUrl}
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Braai location map"
-          />
-        </div>
-      )}
-
-      {/* Supply list */}
-      {braai.supply_items.length > 0 && (() => {
-        const organiserItems = braai.supply_items.filter((i) => i.provided_by === 'organiser')
-        const guestItems = braai.supply_items.filter((i) => i.provided_by === 'needed' || i.provided_by === 'claimed')
-        return (
-          <div className="rounded-xl bg-white/85 p-5 shadow-sm space-y-4 backdrop-blur-sm">
-            {organiserItems.length > 0 && (
-              <div className="space-y-2">
-                <h2 className="font-bold text-sm">I&apos;ll supply</h2>
-                <ul className="space-y-1.5 text-sm">
-                  {organiserItems.map((item) => (
-                    <li key={item.id} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-green-500 flex-shrink-0" />
-                      {item.item_name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {guestItems.length > 0 && (
-              <div className="space-y-2">
-                <h2 className="font-bold text-sm">You can bring</h2>
-                <ul className="space-y-1.5 text-sm">
-                  {guestItems.map((item) => (
-                    <li key={item.id} className="flex items-center justify-between">
-                      <span className={item.provided_by === 'claimed' ? 'line-through text-muted-foreground' : ''}>
-                        {item.item_name}
-                      </span>
-                      {item.provided_by === 'claimed' && item.claimed_by_name && (
-                        <span className="text-xs text-green-700">✓ {item.claimed_by_name}</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )
-      })()}
-
-      {/* Event options */}
-      {(kidsPolicy || showEtiquette) && (
-        <div className="rounded-xl bg-white/85 p-5 shadow-sm space-y-2 backdrop-blur-sm text-sm">
-          {kidsPolicy && (
-            <p>
-              {kidsPolicy === 'welcome' ? '👶 Kids welcome' : '🔞 Adults only'}
-            </p>
-          )}
-          {showEtiquette && (
-            <Link href="/etiquette" className="inline-flex items-center gap-1 text-primary hover:underline">
-              📜 Read the Braai Etiquette guide
-            </Link>
-          )}
-        </div>
-      )}
-
-      {/* Date poll or RSVP */}
-      {!isCancelled && (
-        isPoll ? (
-          <DatePollVote braaiSlug={braai.slug} options={pollOptions} />
-        ) : (
-          <RsvpForm
-            braaiId={braai.id}
-            braaiSlug={braai.slug}
-            supplyMode={braai.supply_mode as 'byo' | 'shared'}
-            availableItems={braai.supply_items}
-            existingRsvp={existingRsvp}
-            isFull={isFull}
-          />
-        )
-      )}
-
-      {/* Actions */}
-      <div className="flex flex-wrap gap-3 justify-center">
-        <WhatsAppShare
+        {/* Illustrated scene header — includes weather badge overlay */}
+        <WeatherScene
+          condition={weather.condition}
           title={braai.title}
-          date={braai.event_date}
-          inviteUrl={inviteUrl}
+          weatherDescription={weather.description}
+          temperatureCelsius={weather.temperatureCelsius}
         />
-        {!isPoll && (
-          <a
-            href={`/api/calendar/${braai.id}`}
-            className="inline-flex items-center gap-2 rounded-md border bg-white/80 px-4 py-2 text-sm font-medium hover:bg-white transition-colors"
-          >
-            <Download className="h-4 w-4" aria-hidden="true" />
-            Save to Calendar
-          </a>
-        )}
+
+        {/* Card body */}
+        <div className="p-4 space-y-3">
+
+          {/* Description */}
+          {braai.description && (
+            <p className="text-sm text-stone-600 text-center px-2">{braai.description}</p>
+          )}
+
+          {/* Date & location */}
+          <div className={INNER}>
+            {/* Date */}
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100">
+                <Calendar className="h-4 w-4 text-amber-600" />
+              </div>
+              <div>
+                <p className="font-bold text-stone-900 text-sm">
+                  {isPoll ? 'Date to be confirmed' : formatDate(braai.event_date)}
+                </p>
+                {!isPoll && braai.event_time && (
+                  <p className="text-xs text-stone-500 mt-0.5">{formatTime(braai.event_time)}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100">
+                <MapPin className="h-4 w-4 text-amber-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold text-stone-900 text-sm">{braai.venue_name}</p>
+                <p className="text-xs text-stone-500 truncate mt-0.5">{braai.venue_address}</p>
+                <a
+                  href={mapsDirectionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 mt-1 hover:text-amber-900 transition-colors"
+                >
+                  Get directions <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Headcount */}
+            {totalHeadcount > 0 && (
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100">
+                  <Users className="h-4 w-4 text-amber-600" />
+                </div>
+                <p className="text-sm text-stone-700">
+                  <span className="font-bold text-stone-900">{totalHeadcount}</span> people coming
+                  <Sparkles className="inline h-3.5 w-3.5 text-amber-400 ml-1" aria-hidden="true" />
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Organiser */}
+          <div className="flex items-center gap-3 rounded-xl bg-stone-50 px-4 py-3">
+            <OrganiserAvatar
+              avatarUrl={braai.organiser.avatar_url}
+              displayName={braai.organiser.display_name}
+              size={36}
+              className="flex-shrink-0"
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-stone-900">{braai.organiser.display_name}</p>
+              <p className="text-xs text-amber-600/80">{braai.organiser.braai_title}</p>
+            </div>
+          </div>
+
+          {/* Supply list */}
+          {braai.supply_items.length > 0 && (() => {
+            const organiserItems = braai.supply_items.filter((i) => i.provided_by === 'organiser')
+            const guestItems = braai.supply_items.filter((i) => i.provided_by === 'needed' || i.provided_by === 'claimed')
+            return (
+              <div className={INNER}>
+                {organiserItems.length > 0 && (
+                  <div className="space-y-1.5">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-amber-600/70">I&apos;ll supply</h2>
+                    <ul className="space-y-1.5">
+                      {organiserItems.map((item) => (
+                        <li key={item.id} className="flex items-center gap-2 text-sm text-stone-800">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                          {item.item_name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {guestItems.length > 0 && (
+                  <div className="space-y-1.5">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-amber-600/70">You can bring</h2>
+                    <ul className="space-y-1.5">
+                      {guestItems.map((item) => (
+                        <li key={item.id} className="flex items-center justify-between">
+                          <span className={`flex items-center gap-2 text-sm ${item.provided_by === 'claimed' ? 'line-through text-stone-400' : 'text-stone-800'}`}>
+                            <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${item.provided_by === 'claimed' ? 'bg-green-400' : 'bg-stone-300'}`} />
+                            {item.item_name}
+                          </span>
+                          {item.provided_by === 'claimed' && item.claimed_by_name && (
+                            <span className="text-xs font-semibold text-green-700">✓ {item.claimed_by_name}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+          {/* Event options */}
+          {(kidsPolicy || showEtiquette) && (
+            <div className={`${INNER} !space-y-2`}>
+              {kidsPolicy && (
+                <p className="flex items-center gap-2 text-sm text-stone-800">
+                  {kidsPolicy === 'welcome'
+                    ? <><Baby className="h-4 w-4 text-stone-500 flex-shrink-0" aria-hidden="true" /> Kids welcome</>
+                    : <><Ban  className="h-4 w-4 text-stone-500 flex-shrink-0" aria-hidden="true" /> Adults only</>
+                  }
+                </p>
+              )}
+              {showEtiquette && (
+                <Link href="/etiquette" className="inline-flex items-center gap-2 text-sm font-semibold text-amber-700 hover:text-amber-900 transition-colors">
+                  <ScrollText className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                  Read the Braai Etiquette guide
+                </Link>
+              )}
+            </div>
+          )}
+
+          {/* Map embed — just above RSVP */}
+          {mapsEmbedUrl && (
+            <div className="rounded-xl overflow-hidden h-40">
+              <iframe
+                src={mapsEmbedUrl}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Braai location map"
+              />
+            </div>
+          )}
+
+          {/* RSVP / Date poll */}
+          {!isCancelled && (
+            isPoll ? (
+              <DatePollVote braaiSlug={braai.slug} options={pollOptions} />
+            ) : (
+              <RsvpForm
+                braaiId={braai.id}
+                braaiSlug={braai.slug}
+                supplyMode={braai.supply_mode as 'byo' | 'shared'}
+                availableItems={braai.supply_items}
+                existingRsvp={existingRsvp}
+                isFull={isFull}
+              />
+            )
+          )}
+
+          {/* Actions */}
+          <div className="flex flex-wrap gap-3 justify-center pt-1">
+            <WhatsAppShare
+              title={braai.title}
+              date={braai.event_date}
+              inviteUrl={inviteUrl}
+            />
+            {!isPoll && (
+              <a
+                href={`/api/calendar/${braai.id}`}
+                className="inline-flex items-center gap-2 h-10 rounded-xl border border-amber-200 bg-white px-4 text-sm font-semibold text-amber-800 hover:bg-amber-50 transition-colors"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                Save to Calendar
+              </a>
+            )}
+          </div>
+
+        </div>
       </div>
 
-      {/* Subtle app promo */}
-      <p className="text-center text-xs text-white/50">
+      {/* Subtle promo */}
+      <p className="text-center text-xs text-amber-900/60">
         Hosting your own braai?{' '}
-        <Link href="/" className="underline underline-offset-2 hover:text-white/80 transition-colors">
+        <Link href="/" className="font-semibold text-orange-700 underline underline-offset-2 hover:text-orange-900 transition-colors">
           Kom Braai
         </Link>
       </p>

@@ -38,11 +38,11 @@ function interpretWmoCode(code: number): WeatherCondition {
 
 const CONDITION_DESCRIPTIONS: Record<WeatherCondition, string> = {
   sunny: 'Perfect braai weather ☀️',
-  cloudy: 'Mild and overcast — still great for a braai',
-  rainy: 'Might need a shelter — have a plan B',
-  cold: 'Bundle up — it\'s a winter braai 🧣',
-  windy: 'Windy conditions — watch the flames',
-  unknown: 'Weather unknown — braai anyway 🔥',
+  cloudy: 'Mild and overcast but still great for a braai',
+  rainy: 'Might need an umbrella or have a plan B',
+  cold: 'Bundle up, it\'s a winter braai 🧣',
+  windy: 'Windy conditions so watch the flames',
+  unknown: 'Weather unknown but braai anyway 🔥',
 }
 
 /**

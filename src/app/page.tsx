@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Flame, Share2, CalendarCheck, Users } from 'lucide-react'
+import { Flame, Share2, CalendarCheck, Users, ScrollText } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Kom Braai — Organise your braai, share the link',
   description:
     'The easiest way to organise a braai and invite your mates. Create an event, share a link, track who\'s coming. No app required.',
   openGraph: {
-    title: 'Kom Braai 🔥',
+    title: 'Kom Braai',
     description:
       'The easiest way to organise a braai and invite your mates.',
     type: 'website',
@@ -43,7 +43,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-orange-950 via-amber-900 to-orange-900">
       {/* Hero */}
       <div className="mx-auto max-w-2xl px-4 pt-20 pb-12 text-center space-y-6">
-        <p className="text-7xl" aria-hidden="true">🔥</p>
+        <Flame className="mx-auto h-16 w-16 text-orange-300 drop-shadow-lg" aria-hidden="true" />
         <h1 className="text-4xl font-extrabold tracking-tight text-white drop-shadow sm:text-5xl">
           Kom Braai
         </h1>
@@ -65,7 +65,8 @@ export default function LandingPage() {
               variant="outline"
               className="gap-2 border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white"
             >
-              📜 Braai etiquette
+              <ScrollText className="h-4 w-4" aria-hidden="true" />
+              Braai etiquette
             </Button>
           </Link>
         </div>

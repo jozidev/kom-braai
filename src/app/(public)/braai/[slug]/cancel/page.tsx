@@ -38,7 +38,7 @@ export default async function BraaiCancelPage({ params }: PageProps) {
   const inviteUrl = `${protocol}://${host}/braai/${slug}`
 
   return (
-    <WeatherBackground condition="rainy">
+    <WeatherBackground>
       <CancelledCard braai={braai} inviteUrl={inviteUrl} />
     </WeatherBackground>
   )
