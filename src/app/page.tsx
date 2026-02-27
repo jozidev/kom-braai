@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Flame, Share2, CalendarCheck, Users, ScrollText, LayoutDashboard } from 'lucide-react'
+import { Flame, Share2, CalendarCheck, Users, LayoutDashboard, HelpCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
@@ -84,14 +84,14 @@ export default async function LandingPage() {
                   Start a braai
                 </Button>
               </Link>
-              <Link href="/etiquette">
+              <Link href="/how-it-works">
                 <Button
                   size="lg"
                   variant="outline"
                   className="gap-2 border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white"
                 >
-                  <ScrollText className="h-4 w-4" aria-hidden="true" />
-                  Braai etiquette
+                  <HelpCircle className="h-4 w-4" aria-hidden="true" />
+                  How it works
                 </Button>
               </Link>
             </>
