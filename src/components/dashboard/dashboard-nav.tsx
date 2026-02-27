@@ -1,10 +1,18 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { Flame, LayoutDashboard, User, LogOut } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Flame, Plus, LayoutDashboard, User, LogOut, ChevronDown } from 'lucide-react'
 import { OrganiserAvatar } from '@/components/common/organiser-avatar'
 import type { Organiser } from '@/lib/types'
 
@@ -13,7 +21,6 @@ type DashboardNavProps = {
 }
 
 export function DashboardNav({ organiser }: DashboardNavProps) {
-  const pathname = usePathname()
   const router = useRouter()
 
   async function handleSignOut() {
@@ -23,58 +30,76 @@ export function DashboardNav({ organiser }: DashboardNavProps) {
     router.refresh()
   }
 
-  const navLinks = [
-    { href: '/dashboard', label: 'My Braais', icon: LayoutDashboard },
-    { href: '/dashboard/profile', label: 'Profile', icon: User },
-  ]
+  const displayName = organiser?.display_name ?? 'Account'
 
   return (
     <header className="border-b bg-background">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-        {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-bold text-lg"
-        >
+
+        {/* Left — logo */}
+        <Link href="/" className="flex items-center gap-2 font-bold text-lg">
           <Flame className="h-5 w-5 text-orange-500" aria-hidden="true" />
           Kom Braai
         </Link>
 
-        {/* Nav links */}
-        <nav className="flex items-center gap-1">
-          {navLinks.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href}>
-              <Button
-                variant={pathname === href ? 'secondary' : 'ghost'}
-                size="sm"
-                className="gap-2"
-              >
-                <Icon className="h-4 w-4" aria-hidden="true" />
-                <span className="hidden sm:inline">{label}</span>
-              </Button>
-            </Link>
-          ))}
-
-          {/* Avatar + sign-out */}
-          <div className="flex items-center gap-2 ml-2 pl-2 border-l">
-            {organiser && (
-              <OrganiserAvatar
-                avatarUrl={organiser.avatar_url}
-                displayName={organiser.display_name}
-                size={28}
-              />
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSignOut}
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Sign out</span>
+        {/* Right — New Braai + account dropdown */}
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard/create">
+            <Button size="sm" className="gap-1.5">
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              <span>New Braai</span>
             </Button>
-          </div>
-        </nav>
+          </Link>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors">
+                <OrganiserAvatar
+                  avatarUrl={organiser?.avatar_url ?? null}
+                  displayName={displayName}
+                  size={28}
+                />
+                <span className="hidden sm:block font-medium max-w-[120px] truncate">
+                  {displayName}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel className="font-normal text-xs text-muted-foreground">
+                {organiser?.braai_title ?? 'Organiser'}
+              </DropdownMenuLabel>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer">
+                  <LayoutDashboard className="h-4 w-4" />
+                  My Braais
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/profile" className="flex items-center gap-2 cursor-pointer">
+                  <User className="h-4 w-4" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={handleSignOut}
+                className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
       </div>
     </header>
   )
