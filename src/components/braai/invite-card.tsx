@@ -146,26 +146,45 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
       )}
 
       {/* Supply list */}
-      {braai.supply_items.length > 0 && (
-        <div className="rounded-xl bg-white/85 p-5 shadow-sm space-y-2 backdrop-blur-sm">
-          <h2 className="font-bold">Bring list</h2>
-          <ul className="space-y-1 text-sm">
-            {braai.supply_items.map((item) => (
-              <li key={item.id} className="flex items-center justify-between">
-                <span className={item.provided_by === 'claimed' ? 'line-through text-muted-foreground' : ''}>
-                  {item.item_name}
-                </span>
-                {item.provided_by === 'organiser' && (
-                  <span className="text-xs text-muted-foreground">organiser</span>
-                )}
-                {item.provided_by === 'claimed' && item.claimed_by_name && (
-                  <span className="text-xs text-green-700">✓ {item.claimed_by_name}</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {braai.supply_items.length > 0 && (() => {
+        const organiserItems = braai.supply_items.filter((i) => i.provided_by === 'organiser')
+        const guestItems = braai.supply_items.filter((i) => i.provided_by === 'needed' || i.provided_by === 'claimed')
+        return (
+          <div className="rounded-xl bg-white/85 p-5 shadow-sm space-y-4 backdrop-blur-sm">
+            {organiserItems.length > 0 && (
+              <div className="space-y-2">
+                <h2 className="font-bold text-sm">I&apos;m supplying</h2>
+                <ul className="space-y-1.5 text-sm">
+                  {organiserItems.map((item) => (
+                    <li key={item.id} className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-500 flex-shrink-0" />
+                      {item.item_name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {guestItems.length > 0 && (
+              <div className="space-y-2">
+                <h2 className="font-bold text-sm">Bring your own</h2>
+                <ul className="space-y-1.5 text-sm">
+                  {guestItems.map((item) => (
+                    <li key={item.id} className="flex items-center justify-between">
+                      <span className={item.provided_by === 'claimed' ? 'line-through text-muted-foreground' : ''}>
+                        {item.item_name}
+                      </span>
+                      {item.provided_by === 'claimed' && item.claimed_by_name && (
+                        <span className="text-xs text-green-700">✓ {item.claimed_by_name}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Event options */}
       {(kidsPolicy || showEtiquette) && (
