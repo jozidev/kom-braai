@@ -2,7 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { cancelBraai, confirmPollDate } from '@/lib/services/braai-service'
-import { updateBraai } from '@/lib/repositories/braai-repository'
+import { updateBraai, getBraaiById } from '@/lib/repositories/braai-repository'
+import { addSupplyItem, deleteSupplyItem } from '@/lib/repositories/supply-repository'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -106,4 +107,57 @@ export async function updateBraaiAction(
 
   revalidatePath(`/dashboard/braai/${braaiId}`)
   redirect(`/dashboard/braai/${braaiId}`)
+}
+
+// ── Supply list editing ───────────────────────────────────────────────────────
+
+export async function addSupplyItemAction(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const user = await getAuthenticatedUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const braaiId = formData.get('braai_id') as string
+  const itemName = (formData.get('item_name') as string | null)?.trim()
+  const providedBy = formData.get('provided_by') as string
+
+  if (!itemName) return { error: 'Item name is required' }
+  if (!['organiser', 'needed'].includes(providedBy)) return { error: 'Invalid provider' }
+
+  // Verify ownership
+  const { data: braai } = await getBraaiById(braaiId)
+  if (!braai || braai.organiser_id !== user.id) return { error: 'Not authorised' }
+
+  const { error } = await addSupplyItem({
+    braai_id: braaiId,
+    item_name: itemName,
+    provided_by: providedBy as 'organiser' | 'needed',
+    category: 'other',
+  })
+  if (error) return { error: 'Failed to add item' }
+
+  revalidatePath(`/dashboard/braai/${braaiId}`)
+  return { success: true }
+}
+
+export async function deleteSupplyItemAction(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const user = await getAuthenticatedUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const braaiId = formData.get('braai_id') as string
+  const itemId = formData.get('item_id') as string
+
+  // Verify ownership
+  const { data: braai } = await getBraaiById(braaiId)
+  if (!braai || braai.organiser_id !== user.id) return { error: 'Not authorised' }
+
+  const { error } = await deleteSupplyItem(itemId)
+  if (error) return { error: 'Failed to remove item' }
+
+  revalidatePath(`/dashboard/braai/${braaiId}`)
+  return { success: true }
 }

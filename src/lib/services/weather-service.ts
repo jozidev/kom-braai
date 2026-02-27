@@ -74,7 +74,7 @@ export async function getWeatherForEvent(
     url.searchParams.set('timezone', 'auto')
     url.searchParams.set('start_date', date)
     url.searchParams.set('end_date', date)
-    url.searchParams.set('forecast_days', '1')
+    // Note: do NOT set forecast_days when using start_date/end_date — they conflict
 
     const response = await fetch(url.toString(), {
       next: { revalidate: 60 * 60 * 3 }, // cache 3 hours

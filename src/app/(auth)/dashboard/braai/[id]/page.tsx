@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ConfirmDateForm } from '@/components/dashboard/confirm-date-form'
 import { CancelBraaiDialog } from '@/components/dashboard/cancel-braai-dialog'
 import { CopyLinkButton } from '@/components/dashboard/copy-link-button'
+import { SupplyListEditor } from '@/components/dashboard/supply-list-editor'
 import {
   ArrowLeft,
   Calendar,
@@ -70,10 +71,6 @@ export default async function BraaiDetailPage({
   const host = headersList.get('host') ?? 'localhost:3000'
   const protocol = host.startsWith('localhost') ? 'http' : 'https'
   const inviteUrl = `${protocol}://${host}/braai/${braai.slug}`
-
-  const claimedItems = braai.supply_items.filter((i) => i.provided_by === 'claimed')
-  const neededItems = braai.supply_items.filter((i) => i.provided_by === 'needed')
-  const organiserItems = braai.supply_items.filter((i) => i.provided_by === 'organiser')
 
   return (
     <div className="space-y-6">
@@ -199,64 +196,17 @@ export default async function BraaiDetailPage({
       </Card>
 
       {/* Supply list */}
-      {braai.supply_items.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Bring list
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            {organiserItems.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">You&apos;re bringing</p>
-                <ul className="space-y-1">
-                  {organiserItems.map((item) => (
-                    <li key={item.id} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                      {item.item_name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {claimedItems.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Claimed by guests</p>
-                <ul className="space-y-1">
-                  {claimedItems.map((item) => (
-                    <li key={item.id} className="flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-green-500 flex-shrink-0" />
-                        {item.item_name}
-                      </span>
-                      {item.claimed_by_name && (
-                        <span className="text-xs text-green-700">{item.claimed_by_name}</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {neededItems.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Still needed</p>
-                <ul className="space-y-1">
-                  {neededItems.map((item) => (
-                    <li key={item.id} className="flex items-center gap-2 text-muted-foreground">
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40 flex-shrink-0" />
-                      {item.item_name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Package className="h-4 w-4" />
+            Supply list
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm">
+          <SupplyListEditor braaiId={id} items={braai.supply_items} />
+        </CardContent>
+      </Card>
 
       {/* Danger zone */}
       {braai.status !== 'cancelled' && (

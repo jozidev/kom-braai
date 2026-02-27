@@ -21,7 +21,39 @@ type PlaceResult = {
 declare global {
   interface Window {
     initGoogleMaps?: () => void
+    google?: {
+      maps?: {
+        places?: unknown
+      }
+    }
   }
+}
+
+// Module-level singleton — ensures the Maps script is only ever injected once
+// regardless of how many AddressPicker instances are mounted.
+let mapsLoadPromise: Promise<void> | null = null
+
+function loadGoogleMapsScript(apiKey: string): Promise<void> {
+  if (mapsLoadPromise) return mapsLoadPromise
+
+  if (window.google?.maps?.places) {
+    mapsLoadPromise = Promise.resolve()
+    return mapsLoadPromise
+  }
+
+  mapsLoadPromise = new Promise((resolve) => {
+    window.initGoogleMaps = () => {
+      delete window.initGoogleMaps
+      resolve()
+    }
+    const script = document.createElement('script')
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`
+    script.async = true
+    script.defer = true
+    document.head.appendChild(script)
+  })
+
+  return mapsLoadPromise
 }
 
 export function AddressPicker({
@@ -46,28 +78,9 @@ export function AddressPicker({
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    if (!apiKey) {
-      // Graceful fallback — plain text inputs
-      setMapsLoaded(false)
-      return
-    }
+    if (!apiKey) return
 
-    if (window.google?.maps?.places) {
-      setMapsLoaded(true)
-      return
-    }
-
-    window.initGoogleMaps = () => setMapsLoaded(true)
-
-    const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`
-    script.async = true
-    script.defer = true
-    document.head.appendChild(script)
-
-    return () => {
-      delete window.initGoogleMaps
-    }
+    loadGoogleMapsScript(apiKey).then(() => setMapsLoaded(true))
   }, [])
 
   useEffect(() => {

@@ -153,7 +153,7 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
           <div className="rounded-xl bg-white/85 p-5 shadow-sm space-y-4 backdrop-blur-sm">
             {organiserItems.length > 0 && (
               <div className="space-y-2">
-                <h2 className="font-bold text-sm">I&apos;m supplying</h2>
+                <h2 className="font-bold text-sm">I&apos;ll supply</h2>
                 <ul className="space-y-1.5 text-sm">
                   {organiserItems.map((item) => (
                     <li key={item.id} className="flex items-center gap-2">
@@ -167,7 +167,7 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
 
             {guestItems.length > 0 && (
               <div className="space-y-2">
-                <h2 className="font-bold text-sm">Bring your own</h2>
+                <h2 className="font-bold text-sm">You can bring</h2>
                 <ul className="space-y-1.5 text-sm">
                   {guestItems.map((item) => (
                     <li key={item.id} className="flex items-center justify-between">
@@ -235,6 +235,14 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
           </a>
         )}
       </div>
+
+      {/* Subtle app promo */}
+      <p className="text-center text-xs text-white/50">
+        Hosting your own braai?{' '}
+        <Link href="/" className="underline underline-offset-2 hover:text-white/80 transition-colors">
+          Kom Braai
+        </Link>
+      </p>
     </div>
   )
 }

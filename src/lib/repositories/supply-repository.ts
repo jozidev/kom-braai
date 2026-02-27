@@ -78,3 +78,42 @@ export async function unclaimItem(
 
   return { error: null }
 }
+
+export async function addSupplyItem(
+  item: SupplyItemInsert
+): Promise<{ data: SupplyItem | null; error: string | null }> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('supply_items')
+    .insert(item)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('[supply-repository] addSupplyItem:', error.message)
+    return { data: null, error: error.message }
+  }
+
+  return { data, error: null }
+}
+
+export async function deleteSupplyItem(
+  itemId: string
+): Promise<{ error: string | null }> {
+  const supabase = await createClient()
+
+  // Only allow deleting organiser-provided or still-needed items (not claimed by a guest)
+  const { error } = await supabase
+    .from('supply_items')
+    .delete()
+    .eq('id', itemId)
+    .in('provided_by', ['organiser', 'needed'])
+
+  if (error) {
+    console.error('[supply-repository] deleteSupplyItem:', error.message)
+    return { error: error.message }
+  }
+
+  return { error: null }
+}
