@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Flame, Plus, LayoutDashboard, User, LogOut, ChevronDown } from 'lucide-react'
+import { Flame, Plus, LayoutDashboard, User, LogOut, ChevronDown, ScrollText } from 'lucide-react'
 import { OrganiserAvatar } from '@/components/common/organiser-avatar'
 import type { Organiser } from '@/lib/types'
 
@@ -84,6 +84,13 @@ export function DashboardNav({ organiser }: DashboardNavProps) {
                 <Link href="/dashboard/profile" className="flex items-center gap-2 cursor-pointer">
                   <User className="h-4 w-4" />
                   Profile
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link href="/etiquette?from=dashboard" className="flex items-center gap-2 cursor-pointer">
+                  <ScrollText className="h-4 w-4" />
+                  Braai etiquette
                 </Link>
               </DropdownMenuItem>
 

@@ -4,7 +4,7 @@ import type { LucideIcon } from 'lucide-react'
 import {
   Flame, ShieldAlert, VolumeX, Crown, Beer,
   Utensils, CircleSlash, ChefHat, ShoppingBag,
-  Hourglass, UtensilsCrossed,
+  Hourglass, UtensilsCrossed, ArrowLeft,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -86,7 +86,15 @@ const RULES: { icon: LucideIcon; title: string; body: string }[] = [
   },
 ]
 
-export default function EtiquettePage() {
+type PageProps = {
+  searchParams: Promise<{ from?: string }>
+}
+
+export default async function EtiquettePage({ searchParams }: PageProps) {
+  const { from } = await searchParams
+  const backHref = from === 'dashboard' ? '/dashboard' : '/'
+  const backLabel = from === 'dashboard' ? 'Back to dashboard' : 'Organise your own braai'
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-950 via-amber-900 to-orange-950">
       <div className="mx-auto max-w-2xl px-4 py-12 space-y-10">
@@ -133,10 +141,11 @@ export default function EtiquettePage() {
             Kom braai.
           </p>
           <Link
-            href="/"
-            className="inline-block text-sm text-white/60 hover:text-white underline underline-offset-4 transition-colors"
+            href={backHref}
+            className="inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white underline underline-offset-4 transition-colors"
           >
-            Organise your own braai →
+            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+            {backLabel}
           </Link>
         </div>
       </div>
