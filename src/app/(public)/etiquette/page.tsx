@@ -4,7 +4,7 @@ import type { LucideIcon } from 'lucide-react'
 import {
   Flame, ShieldAlert, VolumeX, Crown, Beer,
   Utensils, CircleSlash, ChefHat, ShoppingBag,
-  Hourglass, UtensilsCrossed, ArrowLeft,
+  Hourglass, UtensilsCrossed,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -142,10 +142,9 @@ export default async function EtiquettePage({ searchParams }: PageProps) {
           </p>
           <Link
             href={backHref}
-            className="inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white underline underline-offset-4 transition-colors"
+            className="text-sm text-white/40 hover:text-white/80 transition-colors"
           >
-            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            {backLabel}
+            {backHref === '/dashboard' ? '← Back to dashboard' : '← Back to home'}
           </Link>
         </div>
       </div>

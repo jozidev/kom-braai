@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Flame, LogIn, Share2, ClipboardList, LayoutDashboard, ArrowLeft, ArrowRight } from 'lucide-react'
+import { Flame, LogIn, Share2, ClipboardList, LayoutDashboard, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
@@ -99,15 +99,16 @@ export default async function HowItWorksPage({ searchParams }: PageProps) {
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <div>
-            <Link
-              href={backHref}
-              className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white underline underline-offset-4 transition-colors"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-              {from === 'dashboard' ? 'Back to dashboard' : 'Back to home'}
-            </Link>
-          </div>
+        </div>
+
+        {/* Back link — outside card, subtle */}
+        <div className="text-center pb-4">
+          <Link
+            href={backHref}
+            className="text-sm text-white/40 hover:text-white/80 transition-colors"
+          >
+            {from === 'dashboard' ? '← Back to dashboard' : '← Back to home'}
+          </Link>
         </div>
 
       </div>
