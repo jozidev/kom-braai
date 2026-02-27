@@ -6,6 +6,18 @@ export type WeatherCondition =
   | 'windy'
   | 'unknown'
 
+export const WEATHER_EMOJIS: Record<WeatherCondition, string> = {
+  sunny: '☀️',
+  cloudy: '⛅',
+  rainy: '🌧️',
+  cold: '🥶',
+  windy: '💨',
+  unknown: '🔥',
+}
+
+/** Max days ahead Open-Meteo free forecast supports */
+const OPEN_METEO_MAX_DAYS = 16
+
 export type WeatherData = {
   condition: WeatherCondition
   temperatureCelsius: number | null
@@ -42,6 +54,18 @@ export async function getWeatherForEvent(
   lng: number,
   date: string // ISO date string YYYY-MM-DD
 ): Promise<WeatherData> {
+  // Only forecast up to OPEN_METEO_MAX_DAYS days ahead
+  const daysUntilEvent = Math.round(
+    (new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  )
+  if (daysUntilEvent > OPEN_METEO_MAX_DAYS) {
+    return {
+      condition: 'unknown',
+      temperatureCelsius: null,
+      description: 'Too soon to forecast — check closer to the date',
+    }
+  }
+
   try {
     const url = new URL('https://api.open-meteo.com/v1/forecast')
     url.searchParams.set('latitude', String(lat))

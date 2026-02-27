@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Flame, LayoutDashboard, User, LogOut } from 'lucide-react'
+import { OrganiserAvatar } from '@/components/common/organiser-avatar'
 import type { Organiser } from '@/lib/types'
 
 type DashboardNavProps = {
@@ -57,13 +57,11 @@ export function DashboardNav({ organiser }: DashboardNavProps) {
 
           {/* Avatar + sign-out */}
           <div className="flex items-center gap-2 ml-2 pl-2 border-l">
-            {organiser?.avatar_url && (
-              <Image
-                src={organiser.avatar_url}
-                alt={organiser.display_name}
-                width={28}
-                height={28}
-                className="rounded-full"
+            {organiser && (
+              <OrganiserAvatar
+                avatarUrl={organiser.avatar_url}
+                displayName={organiser.display_name}
+                size={28}
               />
             )}
             <Button

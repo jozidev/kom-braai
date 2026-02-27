@@ -121,6 +121,35 @@ export const EVENT_OPTION_DEFINITIONS: EventOptionDefinition[] = [
   },
 ]
 
+// ---- Avatar options (emoji icons for organiser profile) ----
+
+export type AvatarOption = {
+  id: string
+  emoji: string
+  label: string
+}
+
+export const AVATAR_OPTIONS: AvatarOption[] = [
+  { id: 'fire',    emoji: '🔥', label: 'Fire' },
+  { id: 'meat',    emoji: '🥩', label: 'Meat' },
+  { id: 'wors',    emoji: '🌭', label: 'Wors' },
+  { id: 'ribs',    emoji: '🍖', label: 'Ribs' },
+  { id: 'beer',    emoji: '🍺', label: 'Beer' },
+  { id: 'chef',    emoji: '🧑‍🍳', label: 'Chef' },
+  { id: 'wood',    emoji: '🪵', label: 'Wood' },
+  { id: 'potjie',  emoji: '🫕', label: 'Potjie' },
+  { id: 'lion',    emoji: '🦁', label: 'Lion' },
+  { id: 'rugby',   emoji: '🏉', label: 'Rugby' },
+  { id: 'sun',     emoji: '☀️', label: 'Sun' },
+  { id: 'braai',   emoji: '🍗', label: 'Chicken' },
+]
+
+/** True if the avatar_url value is an emoji icon rather than a photo URL */
+export function isEmojiAvatar(avatarUrl: string | null | undefined): boolean {
+  if (!avatarUrl) return false
+  return !avatarUrl.startsWith('http') && !avatarUrl.startsWith('/')
+}
+
 // ---- Helper to get default event_options jsonb value ----
 
 export function getDefaultEventOptions(): Record<string, string | boolean> {

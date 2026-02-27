@@ -11,6 +11,7 @@ const profileSchema = z.object({
   nickname: z.string().max(40).optional(),
   fire_preference: z.enum(['wood', 'gas', 'both']),
   braai_title: z.enum([...BRAAI_TITLES] as unknown as [string, ...string[]]),
+  avatar_url: z.string().max(512).optional(),
 })
 
 export type ProfileFormState = {
@@ -36,6 +37,7 @@ export async function updateProfileAction(
     nickname: formData.get('nickname') || undefined,
     fire_preference: formData.get('fire_preference'),
     braai_title: formData.get('braai_title'),
+    avatar_url: formData.get('avatar_url') || undefined,
   }
 
   const parsed = profileSchema.safeParse(raw)

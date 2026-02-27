@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { Calendar, MapPin, Users, ExternalLink, Download } from 'lucide-react'
+import { OrganiserAvatar } from '@/components/common/organiser-avatar'
+import { WEATHER_EMOJIS } from '@/lib/services/weather-service'
 import { RsvpForm } from '@/components/braai/rsvp-form'
 import { DatePollVote } from '@/components/braai/date-poll-vote'
 import { WhatsAppShare } from '@/components/braai/whatsapp-share'
@@ -56,7 +57,7 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
   return (
     <div className="mx-auto max-w-lg px-4 py-8 space-y-5">
       {/* Header */}
-      <div className="text-center space-y-1">
+      <div className="text-center space-y-2">
         <p className="text-5xl">🔥</p>
         <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow">
           {braai.title}
@@ -64,7 +65,14 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
         {braai.description && (
           <p className="text-white/80 text-sm">{braai.description}</p>
         )}
-        <p className="text-white/70 text-xs">{weather.description}</p>
+        {/* Weather chip */}
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-black/20 px-3 py-1 text-sm text-white backdrop-blur-sm">
+          <span aria-hidden="true">{WEATHER_EMOJIS[weather.condition]}</span>
+          <span>{weather.description}</span>
+          {weather.temperatureCelsius !== null && (
+            <span className="font-semibold">{weather.temperatureCelsius}°C</span>
+          )}
+        </div>
       </div>
 
       {/* Event details card */}
@@ -109,15 +117,12 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
 
         {/* Organiser */}
         <div className="border-t pt-3 flex items-center gap-3">
-          {braai.organiser.avatar_url && (
-            <Image
-              src={braai.organiser.avatar_url}
-              alt={braai.organiser.display_name}
-              width={36}
-              height={36}
-              className="rounded-full flex-shrink-0"
-            />
-          )}
+          <OrganiserAvatar
+            avatarUrl={braai.organiser.avatar_url}
+            displayName={braai.organiser.display_name}
+            size={36}
+            className="flex-shrink-0"
+          />
           <div className="min-w-0">
             <p className="text-sm font-semibold">{braai.organiser.display_name}</p>
             <p className="text-xs text-muted-foreground">{braai.organiser.braai_title}</p>

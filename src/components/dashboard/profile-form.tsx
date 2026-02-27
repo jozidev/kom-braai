@@ -1,7 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
-import Image from 'next/image'
+import { useActionState, useState } from 'react'
 import { updateProfileAction, type ProfileFormState } from '@/app/(auth)/dashboard/profile/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,7 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { BRAAI_TITLES, FIRE_PREFERENCES } from '@/lib/config/event-options'
+import { BRAAI_TITLES, FIRE_PREFERENCES, AVATAR_OPTIONS } from '@/lib/config/event-options'
+import { OrganiserAvatar } from '@/components/common/organiser-avatar'
 import type { Organiser } from '@/lib/types'
 
 function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
@@ -32,6 +32,10 @@ export function ProfileForm({ organiser }: ProfileFormProps) {
     initialState
   )
 
+  const [selectedAvatar, setSelectedAvatar] = useState<string>(
+    organiser.avatar_url ?? ''
+  )
+
   return (
     <form action={formAction} className="space-y-6 max-w-md">
       {state.error && (
@@ -40,21 +44,41 @@ export function ProfileForm({ organiser }: ProfileFormProps) {
         </div>
       )}
 
-      {/* Avatar (display only — synced from Google) */}
-      {organiser.avatar_url && (
+      <input type="hidden" name="avatar_url" value={selectedAvatar} />
+
+      {/* Avatar picker */}
+      <div className="space-y-3">
+        <Label>Avatar</Label>
+
         <div className="flex items-center gap-4">
-          <Image
-            src={organiser.avatar_url}
-            alt={organiser.display_name}
-            width={64}
-            height={64}
-            className="rounded-full"
+          <OrganiserAvatar
+            avatarUrl={selectedAvatar}
+            displayName={organiser.display_name}
+            size={56}
           />
           <p className="text-sm text-muted-foreground">
-            Profile picture synced from Google
+            Pick an icon below
           </p>
         </div>
-      )}
+
+        <div className="flex flex-wrap gap-2">
+          {AVATAR_OPTIONS.map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => setSelectedAvatar(opt.emoji)}
+              aria-label={opt.label}
+              className={`flex h-10 w-10 items-center justify-center rounded-full border text-xl transition-all ${
+                selectedAvatar === opt.emoji
+                  ? 'border-primary bg-primary/10 ring-2 ring-primary ring-offset-1'
+                  : 'border-border bg-background hover:bg-muted'
+              }`}
+            >
+              {opt.emoji}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Display name */}
       <div className="space-y-2">
