@@ -8,6 +8,7 @@ import { getWeatherForEvent } from '@/lib/services/weather-service'
 import { WeatherBackground } from '@/components/braai/weather-background'
 import { InviteCard } from '@/components/braai/invite-card'
 import { CancelledCard } from '@/components/braai/cancelled-card'
+import { RealtimeRefresher } from '@/components/braai/realtime-refresher'
 import { cookies } from 'next/headers'
 
 type PageProps = {
@@ -94,6 +95,7 @@ export default async function BraaiInvitePage({ params }: PageProps) {
 
   return (
     <WeatherBackground condition={weatherCondition}>
+      <RealtimeRefresher braaiId={braai.id} />
       {braai.status === 'cancelled' ? (
         <CancelledCard braai={braai} inviteUrl={inviteUrl} />
       ) : (
