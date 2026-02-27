@@ -24,6 +24,7 @@ export type PredefinedSupplyItem = {
 
 export const PREDEFINED_SUPPLY_ITEMS: PredefinedSupplyItem[] = [
   // Meat
+  { id: 'own_meat', label: 'Own meat', category: 'meat' },
   { id: 'wors', label: 'Boerewors', category: 'meat' },
   { id: 'chops', label: 'Lamb chops', category: 'meat' },
   { id: 'steak', label: 'Steak', category: 'meat' },

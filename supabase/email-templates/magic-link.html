@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in to Kom Braai</title>
+</head>
+<body style="margin:0;padding:0;background-color:#431407;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
+    <tr>
+      <td align="center">
+
+        <!-- Card -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background-color:#ffffff;border-radius:16px;overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td align="center" style="background:linear-gradient(135deg,#ea580c,#f59e0b);padding:36px 32px 28px;">
+              <div style="font-size:48px;line-height:1;margin-bottom:12px;">🔥</div>
+              <h1 style="margin:0;font-size:24px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Kom Braai</h1>
+              <p style="margin:6px 0 0;font-size:14px;color:rgba(255,255,255,0.8);">Your magic link is ready</p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:32px;">
+              <p style="margin:0 0 8px;font-size:15px;color:#44403c;line-height:1.6;">
+                Click the button below to sign in. This link expires in 1 hour and can only be used once.
+              </p>
+              <p style="margin:0 0 28px;font-size:13px;color:#a8a29e;">
+                If you didn&rsquo;t request this, you can safely ignore this email.
+              </p>
+
+              <!-- Button -->
+              <table cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center">
+                    <a href="{{ .SiteURL }}/api/auth/callback?token_hash={{ .TokenHash }}&type=magiclink"
+                       style="display:inline-block;background-color:#ea580c;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:10px;letter-spacing:0.1px;">
+                      Sign in to Kom Braai
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Fallback link -->
+              <p style="margin:24px 0 0;font-size:12px;color:#a8a29e;text-align:center;">
+                Or copy this link into your browser:<br />
+                <a href="{{ .SiteURL }}/api/auth/callback?token_hash={{ .TokenHash }}&type=magiclink" style="color:#ea580c;word-break:break-all;">
+                  {{ .SiteURL }}/api/auth/callback
+                </a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:16px 32px 28px;border-top:1px solid #f5f5f4;">
+              <p style="margin:0;font-size:12px;color:#a8a29e;text-align:center;">
+                Kom Braai &mdash; Organise your braai, share the link.<br />
+                <a href="{{ .SiteURL }}" style="color:#ea580c;text-decoration:none;">kombraai.app</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Card -->
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
