@@ -1,6 +1,7 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { confirmPollDateAction, type ActionState } from '@/app/(auth)/dashboard/braai/[id]/actions'
 import type { PollOptionWithVotes } from '@/lib/repositories/date-poll-repository'
@@ -14,6 +15,11 @@ const initialState: ActionState = {}
 
 export function ConfirmDateForm({ braaiId, pollOptions }: ConfirmDateFormProps) {
   const [state, formAction, isPending] = useActionState(confirmPollDateAction, initialState)
+
+  useEffect(() => {
+    if (state.success) toast.success('Date confirmed! The invite will now show the fixed date.')
+    if (state.error) toast.error(state.error)
+  }, [state])
 
   const sorted = [...pollOptions].sort((a, b) => b.vote_count - a.vote_count)
   const maxVotes = sorted[0]?.vote_count ?? 0

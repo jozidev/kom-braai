@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getBraaiById } from '@/lib/repositories/braai-repository'
 import { getPollOptions } from '@/lib/repositories/date-poll-repository'
 import { notFound, redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -65,7 +66,10 @@ export default async function BraaiDetailPage({
 
   const badge = STATUS_BADGES[braai.status] ?? STATUS_BADGES.draft
 
-  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/braai/${braai.slug}`
+  const headersList = await headers()
+  const host = headersList.get('host') ?? 'localhost:3000'
+  const protocol = host.startsWith('localhost') ? 'http' : 'https'
+  const inviteUrl = `${protocol}://${host}/braai/${braai.slug}`
 
   const claimedItems = braai.supply_items.filter((i) => i.provided_by === 'claimed')
   const neededItems = braai.supply_items.filter((i) => i.provided_by === 'needed')
