@@ -117,7 +117,7 @@ export default async function LandingPage() {
 
       {/* CTA strip */}
       {!user && (
-        <div className="mx-auto max-w-2xl px-4 pb-20 text-center space-y-4">
+        <div className="mx-auto max-w-2xl px-4 pb-12 text-center space-y-4">
           <p className="text-white/60 text-sm">
             Sign in with Google or email — it&apos;s free, no credit card needed.
           </p>
@@ -131,6 +131,16 @@ export default async function LandingPage() {
           </Link>
         </div>
       )}
+
+      {/* Footer links */}
+      <div className="mx-auto max-w-2xl px-4 pb-20 text-center">
+        <Link
+          href="/etiquette"
+          className="text-sm text-white/40 hover:text-white/80 transition-colors"
+        >
+          Braai etiquette
+        </Link>
+      </div>
     </div>
   )
 }
