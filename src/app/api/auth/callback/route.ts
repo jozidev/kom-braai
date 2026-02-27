@@ -1,6 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { getOrCreateOrganiser } from '@/lib/services/organiser-service'
 import type { EmailOtpType } from '@supabase/supabase-js'
 
 export async function GET(request: NextRequest) {
@@ -46,7 +45,22 @@ export async function GET(request: NextRequest) {
   if (!error) {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      await getOrCreateOrganiser(user)
+      // Use the same authenticated client so auth.uid() is set for the RLS check.
+      // upsert with ignoreDuplicates ensures returning users aren't overwritten.
+      await supabase.from('organisers').upsert(
+        {
+          id: user.id,
+          display_name:
+            user.user_metadata?.full_name ??
+            user.user_metadata?.name ??
+            user.email?.split('@')[0] ??
+            'Braai Organiser',
+          avatar_url: user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null,
+          fire_preference: 'both',
+          braai_title: 'Vuurmeester',
+        },
+        { onConflict: 'id', ignoreDuplicates: true }
+      )
     }
     return supabaseResponse
   }
