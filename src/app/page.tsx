@@ -53,7 +53,7 @@ export default function LandingPage() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-          <Link href="/login">
+          <Link href="/dashboard/create">
             <Button size="lg" className="gap-2 bg-white text-orange-900 hover:bg-white/90 font-bold px-8">
               <Flame className="h-5 w-5" />
               Start a braai
@@ -93,7 +93,7 @@ export default function LandingPage() {
         <p className="text-white/60 text-sm">
           Sign in with Google — it&apos;s free, no credit card needed.
         </p>
-        <Link href="/login">
+        <Link href="/dashboard/create">
           <Button
             size="lg"
             className="bg-orange-400 hover:bg-orange-300 text-orange-950 font-bold px-10"
