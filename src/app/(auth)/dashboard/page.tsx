@@ -3,27 +3,8 @@ import { redirect } from 'next/navigation'
 import { getBraaisByOrganiser } from '@/lib/repositories/braai-repository'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Flame, Plus, ExternalLink } from 'lucide-react'
-import { CopyLinkButton } from '@/components/dashboard/copy-link-button'
-import { WhatsAppShareButton } from '@/components/dashboard/whatsapp-share-button'
-import type { Braai } from '@/lib/types'
-
-const STATUS_BADGES: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  draft:     { label: 'Draft',     variant: 'outline' },
-  active:    { label: 'Active',    variant: 'default' },
-  cancelled: { label: 'Cancelled', variant: 'destructive' },
-  completed: { label: 'Completed', variant: 'secondary' },
-}
-
-function formatDate(braai: Braai): string {
-  if (braai.date_mode === 'poll' && !braai.event_date) return 'Date poll'
-  if (!braai.event_date) return 'No date set'
-  return new Date(braai.event_date).toLocaleDateString('en-ZA', {
-    day: 'numeric', month: 'short', year: 'numeric',
-  })
-}
+import { Flame, Plus } from 'lucide-react'
+import { BraaiViews } from '@/components/dashboard/braai-views'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -59,41 +40,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {braais.map((braai) => {
-            const badge = STATUS_BADGES[braai.status] ?? STATUS_BADGES.draft
-
-            return (
-              <Card key={braai.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base leading-tight">{braai.title}</CardTitle>
-                    <Badge variant={badge.variant} className="shrink-0">{badge.label}</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{formatDate(braai)}</p>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground truncate">{braai.venue_name}</p>
-                  <div className="space-y-2 pt-1">
-                    <Link href={`/dashboard/braai/${braai.id}`} className="block">
-                      <Button variant="outline" size="sm" className="w-full">Manage</Button>
-                    </Link>
-                    <div className="grid grid-cols-3 gap-1">
-                      <Link href={`/braai/${braai.slug}`} target="_blank">
-                        <Button variant="ghost" size="sm" className="w-full gap-1.5">
-                          <ExternalLink className="h-3.5 w-3.5" />
-                          View invite
-                        </Button>
-                      </Link>
-                      <CopyLinkButton slug={braai.slug} className="w-full" />
-                      <WhatsAppShareButton slug={braai.slug} title={braai.title} date={braai.event_date} className="w-full" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
+        <BraaiViews braais={braais} />
       )}
     </div>
   )
