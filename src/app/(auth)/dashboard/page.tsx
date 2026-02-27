@@ -74,18 +74,20 @@ export default async function DashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground truncate">{braai.venue_name}</p>
-                  <div className="flex flex-wrap gap-2">
-                    <Link href={`/dashboard/braai/${braai.id}`}>
-                      <Button variant="outline" size="sm">Manage</Button>
+                  <div className="space-y-2 pt-1">
+                    <Link href={`/dashboard/braai/${braai.id}`} className="block">
+                      <Button variant="outline" size="sm" className="w-full">Manage</Button>
                     </Link>
-                    <Link href={`/braai/${braai.slug}`} target="_blank">
-                      <Button variant="ghost" size="sm" className="gap-1.5">
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        Invite
-                      </Button>
-                    </Link>
-                    <CopyLinkButton slug={braai.slug} />
-                    <WhatsAppShareButton slug={braai.slug} title={braai.title} date={braai.event_date} />
+                    <div className="flex items-center gap-1">
+                      <Link href={`/braai/${braai.slug}`} target="_blank" className="flex-1">
+                        <Button variant="ghost" size="sm" className="w-full gap-1.5">
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          Invite
+                        </Button>
+                      </Link>
+                      <CopyLinkButton slug={braai.slug} />
+                      <WhatsAppShareButton slug={braai.slug} title={braai.title} date={braai.event_date} />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
