@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Flame, Plus, ExternalLink } from 'lucide-react'
 import { CopyLinkButton } from '@/components/dashboard/copy-link-button'
+import { WhatsAppShareButton } from '@/components/dashboard/whatsapp-share-button'
 import type { Braai } from '@/lib/types'
 
 const STATUS_BADGES: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -84,6 +85,7 @@ export default async function DashboardPage() {
                       </Button>
                     </Link>
                     <CopyLinkButton slug={braai.slug} />
+                    <WhatsAppShareButton slug={braai.slug} title={braai.title} date={braai.event_date} />
                   </div>
                 </CardContent>
               </Card>
