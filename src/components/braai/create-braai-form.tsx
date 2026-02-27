@@ -18,6 +18,8 @@ type SupplyItemDraft = {
   provided_by: 'organiser' | 'needed'
 }
 
+const NIKS = 'Nothing / Niks'
+
 const initialState: CreateBraaiFormState = {}
 
 export function CreateBraaiForm() {
@@ -27,24 +29,42 @@ export function CreateBraaiForm() {
   const [supplyMode, setSupplyMode] = useState<'byo' | 'shared'>('byo')
   const [supplyItems, setSupplyItems] = useState<SupplyItemDraft[]>([])
   const [pollDates, setPollDates] = useState<string[]>(['', ''])
-  const [customItem, setCustomItem] = useState('')
+  const [customOrgItem, setCustomOrgItem] = useState('')
+  const [customNeededItem, setCustomNeededItem] = useState('')
   const [eventOptions, setEventOptions] = useState<Record<string, unknown>>({})
 
-  function togglePredefinedItem(itemId: string, itemName: string, category: string) {
-    const status: SupplyItemDraft['provided_by'] = supplyMode === 'byo' ? 'organiser' : 'needed'
-    const exists = supplyItems.find((i) => i.item_name === itemName)
-    if (exists) {
-      setSupplyItems((prev) => prev.filter((i) => i.item_name !== itemName))
-    } else {
-      setSupplyItems((prev) => [...prev, { item_name: itemName, category, provided_by: status }])
-    }
+  function toggleItem(itemName: string, category: string, providedBy: 'organiser' | 'needed') {
+    setSupplyItems((prev) => {
+      const exists = prev.find((i) => i.item_name === itemName && i.provided_by === providedBy)
+      if (exists) {
+        return prev.filter((i) => !(i.item_name === itemName && i.provided_by === providedBy))
+      }
+      const filtered = prev.filter((i) => !(i.item_name === NIKS && i.provided_by === providedBy))
+      return [...filtered, { item_name: itemName, category, provided_by: providedBy }]
+    })
   }
 
-  function addCustomItem() {
-    const trimmed = customItem.trim()
+  function toggleNiks(providedBy: 'organiser' | 'needed') {
+    setSupplyItems((prev) => {
+      const hasNiks = prev.some((i) => i.item_name === NIKS && i.provided_by === providedBy)
+      if (hasNiks) {
+        return prev.filter((i) => !(i.item_name === NIKS && i.provided_by === providedBy))
+      }
+      const otherSection = prev.filter((i) => i.provided_by !== providedBy)
+      return [...otherSection, { item_name: NIKS, category: 'other', provided_by: providedBy }]
+    })
+  }
+
+  function addCustomItem(providedBy: 'organiser' | 'needed') {
+    const raw = providedBy === 'organiser' ? customOrgItem : customNeededItem
+    const trimmed = raw.trim()
     if (!trimmed) return
-    setSupplyItems((prev) => [...prev, { item_name: trimmed, category: 'other', provided_by: supplyMode === 'byo' ? 'organiser' : 'needed' }])
-    setCustomItem('')
+    setSupplyItems((prev) => {
+      const filtered = prev.filter((i) => !(i.item_name === NIKS && i.provided_by === providedBy))
+      return [...filtered, { item_name: trimmed, category: 'other', provided_by: providedBy }]
+    })
+    if (providedBy === 'organiser') setCustomOrgItem('')
+    else setCustomNeededItem('')
   }
 
   function addPollDate() {
@@ -63,6 +83,79 @@ export function CreateBraaiForm() {
     category: cat as SupplyCategory,
     items: PREDEFINED_SUPPLY_ITEMS.filter((i) => i.category === cat),
   })).filter((c) => c.items.length > 0)
+
+  function renderItemPicker(providedBy: 'organiser' | 'needed') {
+    const hasNiks = supplyItems.some((i) => i.item_name === NIKS && i.provided_by === providedBy)
+    const customVal = providedBy === 'organiser' ? customOrgItem : customNeededItem
+    const setCustomVal = providedBy === 'organiser' ? setCustomOrgItem : setCustomNeededItem
+
+    return (
+      <div className="space-y-3">
+        {/* Nothing / Niks pill */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => toggleNiks(providedBy)}
+            className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+              hasNiks
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-background border-input hover:bg-muted'
+            }`}
+          >
+            Nothing / Niks
+          </button>
+        </div>
+
+        {/* Categorised items — hidden when Niks selected */}
+        {!hasNiks && categorised.map(({ category, items }) => (
+          <div key={category} className="space-y-1.5">
+            <p className="text-xs font-medium capitalize text-muted-foreground">{category}</p>
+            <div className="flex flex-wrap gap-2">
+              {items.map((item) => {
+                const selected = supplyItems.some(
+                  (s) => s.item_name === item.label && s.provided_by === providedBy
+                )
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => toggleItem(item.label, item.category, providedBy)}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      selected
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-background border-input hover:bg-muted'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+
+        {/* Custom item */}
+        {!hasNiks && (
+          <div className="flex gap-2">
+            <Input
+              value={customVal}
+              onChange={(e) => setCustomVal(e.target.value)}
+              placeholder="Custom item..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') { e.preventDefault(); addCustomItem(providedBy) }
+              }}
+            />
+            <Button type="button" variant="outline" onClick={() => addCustomItem(providedBy)}>
+              Add
+            </Button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const organiserItems = supplyItems.filter((i) => i.provided_by === 'organiser')
+  const neededItems = supplyItems.filter((i) => i.provided_by === 'needed')
 
   return (
     <form action={formAction} className="space-y-10 max-w-xl">
@@ -191,57 +284,81 @@ export function CreateBraaiForm() {
           ))}
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          {supplyMode === 'byo'
-            ? 'Tick what you\'re providing. Attendees sort themselves out.'
-            : 'Tick items needed. Attendees can claim them on the invite.'}
-        </p>
+        {supplyMode === 'byo' ? (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Select what you&apos;re providing. Everyone else sorts themselves out.
+            </p>
+            {renderItemPicker('organiser')}
 
-        {categorised.map(({ category, items }) => (
-          <div key={category} className="space-y-2">
-            <p className="text-sm font-medium capitalize text-muted-foreground">{category}</p>
-            <div className="flex flex-wrap gap-2">
-              {items.map((item) => {
-                const selected = supplyItems.some((s) => s.item_name === item.label)
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => togglePredefinedItem(item.id, item.label, item.category)}
-                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                      selected
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-background border-input hover:bg-muted'
-                    }`}
+            {/* Summary */}
+            {organiserItems.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {organiserItems.map((item, i) => (
+                  <Badge
+                    key={i}
+                    variant="secondary"
+                    className="gap-1 cursor-pointer"
+                    onClick={() => setSupplyItems((prev) => prev.filter((s) => !(s.item_name === item.item_name && s.provided_by === 'organiser')))}
                   >
-                    {item.label}
-                  </button>
-                )
-              })}
-            </div>
+                    {item.item_name}
+                    <span className="opacity-60">×</span>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
-        ))}
+        ) : (
+          <div className="space-y-6">
+            {/* What organiser provides */}
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-semibold">What I&apos;m providing</p>
+                <p className="text-sm text-muted-foreground">Select what you&apos;ll have sorted.</p>
+              </div>
+              {renderItemPicker('organiser')}
+              {organiserItems.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {organiserItems.map((item, i) => (
+                    <Badge
+                      key={i}
+                      variant="secondary"
+                      className="gap-1 cursor-pointer"
+                      onClick={() => setSupplyItems((prev) => prev.filter((s) => !(s.item_name === item.item_name && s.provided_by === 'organiser')))}
+                    >
+                      {item.item_name}
+                      <span className="opacity-60">×</span>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
 
-        {/* Custom item */}
-        <div className="flex gap-2">
-          <Input
-            value={customItem}
-            onChange={(e) => setCustomItem(e.target.value)}
-            placeholder="Custom item..."
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomItem() } }}
-          />
-          <Button type="button" variant="outline" onClick={addCustomItem}>Add</Button>
-        </div>
+            <div className="border-t" />
 
-        {/* Selected items summary */}
-        {supplyItems.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {supplyItems.map((item, i) => (
-              <Badge key={i} variant="secondary" className="gap-1 cursor-pointer" onClick={() => setSupplyItems((prev) => prev.filter((_, idx) => idx !== i))}>
-                {item.item_name}
-                <span className="opacity-60">×</span>
-              </Badge>
-            ))}
+            {/* What guests should bring */}
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-semibold">Guests should bring</p>
+                <p className="text-sm text-muted-foreground">Attendees can claim these on the invite.</p>
+              </div>
+              {renderItemPicker('needed')}
+              {neededItems.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {neededItems.map((item, i) => (
+                    <Badge
+                      key={i}
+                      variant="secondary"
+                      className="gap-1 cursor-pointer"
+                      onClick={() => setSupplyItems((prev) => prev.filter((s) => !(s.item_name === item.item_name && s.provided_by === 'needed')))}
+                    >
+                      {item.item_name}
+                      <span className="opacity-60">×</span>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </section>
