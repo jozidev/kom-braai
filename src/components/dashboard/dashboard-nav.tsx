@@ -33,7 +33,7 @@ export function DashboardNav({ organiser }: DashboardNavProps) {
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
         {/* Logo */}
         <Link
-          href="/dashboard"
+          href="/"
           className="flex items-center gap-2 font-bold text-lg"
         >
           <Flame className="h-5 w-5 text-orange-500" aria-hidden="true" />

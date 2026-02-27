@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ConfirmDateForm } from '@/components/dashboard/confirm-date-form'
 import { CancelBraaiDialog } from '@/components/dashboard/cancel-braai-dialog'
 import { CopyLinkButton } from '@/components/dashboard/copy-link-button'
+import { WhatsAppShareButton } from '@/components/dashboard/whatsapp-share-button'
 import { SupplyListEditor } from '@/components/dashboard/supply-list-editor'
 import {
   ArrowLeft,
@@ -118,6 +119,7 @@ export default async function BraaiDetailPage({
               </Button>
             </Link>
             <CopyLinkButton slug={braai.slug} />
+            <WhatsAppShareButton slug={braai.slug} title={braai.title} date={braai.event_date} />
           </div>
         </CardContent>
       </Card>
