@@ -1,6 +1,7 @@
 'use client'
 
 import { MessageCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 type Props = {
   slug: string
@@ -21,13 +22,15 @@ export function WhatsAppShareButton({ slug, title, date }: Props) {
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
+      size="sm"
       onClick={handleShare}
-      className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+      className="gap-1.5"
     >
       <MessageCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0" aria-hidden="true" />
       WhatsApp
-    </button>
+    </Button>
   )
 }
