@@ -6,9 +6,10 @@ import { Copy, Check } from 'lucide-react'
 
 type CopyLinkButtonProps = {
   slug: string
+  className?: string
 }
 
-export function CopyLinkButton({ slug }: CopyLinkButtonProps) {
+export function CopyLinkButton({ slug, className }: CopyLinkButtonProps) {
   const [copied, setCopied] = useState(false)
 
   async function handleCopy() {
@@ -19,7 +20,7 @@ export function CopyLinkButton({ slug }: CopyLinkButtonProps) {
   }
 
   return (
-    <Button variant="ghost" size="sm" className="gap-1.5" onClick={handleCopy}>
+    <Button variant="ghost" size="sm" className={`gap-1.5 ${className ?? ''}`} onClick={handleCopy}>
       {copied ? (
         <>
           <Check className="h-3.5 w-3.5 text-green-600" />

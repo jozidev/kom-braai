@@ -78,15 +78,15 @@ export default async function DashboardPage() {
                     <Link href={`/dashboard/braai/${braai.id}`} className="block">
                       <Button variant="outline" size="sm" className="w-full">Manage</Button>
                     </Link>
-                    <div className="flex items-center gap-1">
-                      <Link href={`/braai/${braai.slug}`} target="_blank" className="flex-1">
+                    <div className="grid grid-cols-3 gap-1">
+                      <Link href={`/braai/${braai.slug}`} target="_blank">
                         <Button variant="ghost" size="sm" className="w-full gap-1.5">
                           <ExternalLink className="h-3.5 w-3.5" />
-                          Preview invite
+                          View invite
                         </Button>
                       </Link>
-                      <CopyLinkButton slug={braai.slug} />
-                      <WhatsAppShareButton slug={braai.slug} title={braai.title} date={braai.event_date} />
+                      <CopyLinkButton slug={braai.slug} className="w-full" />
+                      <WhatsAppShareButton slug={braai.slug} title={braai.title} date={braai.event_date} className="w-full" />
                     </div>
                   </div>
                 </CardContent>
