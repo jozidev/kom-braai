@@ -65,7 +65,7 @@ export type CreateBraaiInput = Omit<
   BraaiInsert,
   'id' | 'slug' | 'organiser_id' | 'created_at' | 'updated_at'
 > & {
-  supply_items: Array<{ item_name: string; category: string; provided_by: SupplyItemStatus }>
+  supply_items?: Array<{ item_name: string; category: string; provided_by: SupplyItemStatus }>
   poll_dates?: string[]
 }
 
