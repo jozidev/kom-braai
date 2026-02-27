@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { BRAAI_TITLES, FIRE_PREFERENCES, AVATAR_OPTIONS } from '@/lib/config/event-options'
+import { BRAAI_TITLES, FIRE_PREFERENCES, AVATAR_OPTIONS, isEmojiAvatar } from '@/lib/config/event-options'
 import { OrganiserAvatar } from '@/components/common/organiser-avatar'
 import type { Organiser } from '@/lib/types'
 
@@ -32,8 +32,9 @@ export function ProfileForm({ organiser }: ProfileFormProps) {
     initialState
   )
 
+  // Only pre-select if it's already an emoji avatar; ignore Google photo URLs
   const [selectedAvatar, setSelectedAvatar] = useState<string>(
-    organiser.avatar_url ?? ''
+    isEmojiAvatar(organiser.avatar_url) ? (organiser.avatar_url ?? '') : ''
   )
 
   return (
