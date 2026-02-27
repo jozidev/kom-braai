@@ -3,48 +3,115 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Mail, Check } from 'lucide-react'
 
 type LoginFormProps = {
   redirectTo?: string
 }
 
 export function LoginForm({ redirectTo }: LoginFormProps) {
-  const [isLoading, setIsLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const [email, setEmail] = useState('')
+  const [magicLinkSent, setMagicLinkSent] = useState(false)
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false)
+  const [magicLinkError, setMagicLinkError] = useState('')
+
+  function buildCallbackUrl() {
+    const url = new URL('/api/auth/callback', window.location.origin)
+    if (redirectTo) url.searchParams.set('next', redirectTo)
+    return url.toString()
+  }
 
   async function handleGoogleSignIn() {
-    setIsLoading(true)
+    setGoogleLoading(true)
     const supabase = createClient()
-
-    const callbackUrl = new URL('/api/auth/callback', window.location.origin)
-    if (redirectTo) {
-      callbackUrl.searchParams.set('next', redirectTo)
-    }
-
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: callbackUrl.toString(),
-      },
+      options: { redirectTo: buildCallbackUrl() },
     })
   }
 
+  async function handleMagicLink(e: React.FormEvent) {
+    e.preventDefault()
+    setMagicLinkError('')
+    setMagicLinkLoading(true)
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim(),
+      options: {
+        emailRedirectTo: buildCallbackUrl(),
+        shouldCreateUser: true,
+      },
+    })
+    setMagicLinkLoading(false)
+    if (error) {
+      setMagicLinkError(error.message)
+    } else {
+      setMagicLinkSent(true)
+    }
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Google */}
       <Button
         onClick={handleGoogleSignIn}
-        disabled={isLoading}
+        disabled={googleLoading}
         className="w-full"
         size="lg"
       >
-        {isLoading ? (
-          'Redirecting...'
-        ) : (
-          <>
-            <GoogleIcon />
-            Continue with Google
-          </>
-        )}
+        {googleLoading ? 'Redirecting...' : <><GoogleIcon />Continue with Google</>}
       </Button>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 border-t" />
+        <span className="text-xs text-muted-foreground">or</span>
+        <div className="flex-1 border-t" />
+      </div>
+
+      {/* Magic link */}
+      {magicLinkSent ? (
+        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-4 flex items-start gap-3">
+          <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-green-800">Check your email</p>
+            <p className="text-sm text-green-700 mt-0.5">
+              We sent a magic link to <span className="font-medium">{email}</span>. Click it to sign in.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleMagicLink} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="magic-email">Email address</Label>
+            <Input
+              id="magic-email"
+              type="email"
+              placeholder="you@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          {magicLinkError && (
+            <p className="text-sm text-destructive">{magicLinkError}</p>
+          )}
+          <Button
+            type="submit"
+            variant="outline"
+            size="lg"
+            className="w-full gap-2"
+            disabled={magicLinkLoading}
+          >
+            <Mail className="h-4 w-4" />
+            {magicLinkLoading ? 'Sending...' : 'Send magic link'}
+          </Button>
+        </form>
+      )}
+
       <p className="text-center text-sm text-muted-foreground">
         Only required to create or manage braais.
         <br />

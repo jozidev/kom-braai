@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Flame, Share2, CalendarCheck, Users, ScrollText } from 'lucide-react'
+import { Flame, Share2, CalendarCheck, Users, ScrollText, LayoutDashboard } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: 'Kom Braai — Organise your braai, share the link',
@@ -38,7 +39,10 @@ const FEATURES = [
   },
 ]
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-950 via-amber-900 to-orange-900">
       {/* Hero */}
@@ -53,22 +57,45 @@ export default function LandingPage() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-          <Link href="/dashboard/create">
-            <Button size="lg" className="gap-2 bg-white text-orange-900 hover:bg-white/90 font-bold px-8">
-              <Flame className="h-5 w-5" />
-              Start a braai
-            </Button>
-          </Link>
-          <Link href="/etiquette">
-            <Button
-              size="lg"
-              variant="outline"
-              className="gap-2 border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white"
-            >
-              <ScrollText className="h-4 w-4" aria-hidden="true" />
-              Braai etiquette
-            </Button>
-          </Link>
+          {user ? (
+            <>
+              <Link href="/dashboard">
+                <Button size="lg" className="gap-2 bg-white text-orange-900 hover:bg-white/90 font-bold px-8">
+                  <LayoutDashboard className="h-5 w-5" />
+                  My Braais
+                </Button>
+              </Link>
+              <Link href="/dashboard/create">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white"
+                >
+                  <Flame className="h-4 w-4" aria-hidden="true" />
+                  New Braai
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link href="/dashboard/create">
+                <Button size="lg" className="gap-2 bg-white text-orange-900 hover:bg-white/90 font-bold px-8">
+                  <Flame className="h-5 w-5" />
+                  Start a braai
+                </Button>
+              </Link>
+              <Link href="/etiquette">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white"
+                >
+                  <ScrollText className="h-4 w-4" aria-hidden="true" />
+                  Braai etiquette
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
@@ -89,19 +116,21 @@ export default function LandingPage() {
       </div>
 
       {/* CTA strip */}
-      <div className="mx-auto max-w-2xl px-4 pb-20 text-center space-y-4">
-        <p className="text-white/60 text-sm">
-          Sign in with Google — it&apos;s free, no credit card needed.
-        </p>
-        <Link href="/dashboard/create">
-          <Button
-            size="lg"
-            className="bg-orange-400 hover:bg-orange-300 text-orange-950 font-bold px-10"
-          >
-            Create your first braai →
-          </Button>
-        </Link>
-      </div>
+      {!user && (
+        <div className="mx-auto max-w-2xl px-4 pb-20 text-center space-y-4">
+          <p className="text-white/60 text-sm">
+            Sign in with Google or email — it&apos;s free, no credit card needed.
+          </p>
+          <Link href="/dashboard/create">
+            <Button
+              size="lg"
+              className="bg-orange-400 hover:bg-orange-300 text-orange-950 font-bold px-10"
+            >
+              Create your first braai →
+            </Button>
+          </Link>
+        </div>
+      )}
     </div>
   )
 }

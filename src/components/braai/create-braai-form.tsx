@@ -26,7 +26,6 @@ export function CreateBraaiForm() {
   const [state, formAction, isPending] = useActionState(createBraaiAction, initialState)
 
   const [dateMode, setDateMode] = useState<'fixed' | 'poll'>('fixed')
-  const [supplyMode, setSupplyMode] = useState<'byo' | 'shared'>('byo')
   const [supplyItems, setSupplyItems] = useState<SupplyItemDraft[]>([])
   const [pollDates, setPollDates] = useState<string[]>(['', ''])
   const [customOrgItem, setCustomOrgItem] = useState('')
@@ -170,7 +169,7 @@ export function CreateBraaiForm() {
       <input type="hidden" name="poll_dates" value={JSON.stringify(pollDates.filter(Boolean))} />
       <input type="hidden" name="event_options" value={JSON.stringify(eventOptions)} />
       <input type="hidden" name="date_mode" value={dateMode} />
-      <input type="hidden" name="supply_mode" value={supplyMode} />
+      <input type="hidden" name="supply_mode" value="shared" />
 
       {/* ── Section 1: Event details ── */}
       <section className="space-y-4">
@@ -264,103 +263,58 @@ export function CreateBraaiForm() {
       </section>
 
       {/* ── Section 3: Supplies ── */}
-      <section className="space-y-4">
+      <section className="space-y-6">
         <h2 className="text-lg font-semibold border-b pb-2">3. Supplies</h2>
 
-        <div className="flex gap-2">
-          {(['byo', 'shared'] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => setSupplyMode(mode)}
-              className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors ${
-                supplyMode === mode
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-background border-input hover:bg-muted'
-              }`}
-            >
-              {mode === 'byo' ? 'Bring your own' : 'Shared / Potjie'}
-            </button>
-          ))}
+        {/* What organiser provides */}
+        <div className="space-y-3">
+          <div>
+            <p className="text-sm font-semibold">What I&apos;m providing</p>
+            <p className="text-sm text-muted-foreground">Select what you&apos;ll have sorted.</p>
+          </div>
+          {renderItemPicker('organiser')}
+          {organiserItems.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {organiserItems.map((item, i) => (
+                <Badge
+                  key={i}
+                  variant="secondary"
+                  className="gap-1 cursor-pointer"
+                  onClick={() => setSupplyItems((prev) => prev.filter((s) => !(s.item_name === item.item_name && s.provided_by === 'organiser')))}
+                >
+                  {item.item_name}
+                  <span className="opacity-60">×</span>
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
 
-        {supplyMode === 'byo' ? (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Select what you&apos;re providing. Everyone else sorts themselves out.
-            </p>
-            {renderItemPicker('organiser')}
+        <div className="border-t" />
 
-            {/* Summary */}
-            {organiserItems.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {organiserItems.map((item, i) => (
-                  <Badge
-                    key={i}
-                    variant="secondary"
-                    className="gap-1 cursor-pointer"
-                    onClick={() => setSupplyItems((prev) => prev.filter((s) => !(s.item_name === item.item_name && s.provided_by === 'organiser')))}
-                  >
-                    {item.item_name}
-                    <span className="opacity-60">×</span>
-                  </Badge>
-                ))}
-              </div>
-            )}
+        {/* What guests should bring */}
+        <div className="space-y-3">
+          <div>
+            <p className="text-sm font-semibold">Guests can bring</p>
+            <p className="text-sm text-muted-foreground">Attendees can claim these on the invite.</p>
           </div>
-        ) : (
-          <div className="space-y-6">
-            {/* What organiser provides */}
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-semibold">What I&apos;m providing</p>
-                <p className="text-sm text-muted-foreground">Select what you&apos;ll have sorted.</p>
-              </div>
-              {renderItemPicker('organiser')}
-              {organiserItems.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {organiserItems.map((item, i) => (
-                    <Badge
-                      key={i}
-                      variant="secondary"
-                      className="gap-1 cursor-pointer"
-                      onClick={() => setSupplyItems((prev) => prev.filter((s) => !(s.item_name === item.item_name && s.provided_by === 'organiser')))}
-                    >
-                      {item.item_name}
-                      <span className="opacity-60">×</span>
-                    </Badge>
-                  ))}
-                </div>
-              )}
+          {renderItemPicker('needed')}
+          {neededItems.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {neededItems.map((item, i) => (
+                <Badge
+                  key={i}
+                  variant="secondary"
+                  className="gap-1 cursor-pointer"
+                  onClick={() => setSupplyItems((prev) => prev.filter((s) => !(s.item_name === item.item_name && s.provided_by === 'needed')))}
+                >
+                  {item.item_name}
+                  <span className="opacity-60">×</span>
+                </Badge>
+              ))}
             </div>
-
-            <div className="border-t" />
-
-            {/* What guests should bring */}
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-semibold">Guests should bring</p>
-                <p className="text-sm text-muted-foreground">Attendees can claim these on the invite.</p>
-              </div>
-              {renderItemPicker('needed')}
-              {neededItems.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {neededItems.map((item, i) => (
-                    <Badge
-                      key={i}
-                      variant="secondary"
-                      className="gap-1 cursor-pointer"
-                      onClick={() => setSupplyItems((prev) => prev.filter((s) => !(s.item_name === item.item_name && s.provided_by === 'needed')))}
-                    >
-                      {item.item_name}
-                      <span className="opacity-60">×</span>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </section>
 
       {/* ── Section 4: Event options ── */}
