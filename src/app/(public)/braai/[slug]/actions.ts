@@ -1,0 +1,102 @@
+'use server'
+
+import { submitRsvp, cancelRsvp } from '@/lib/services/rsvp-service'
+import { addVote } from '@/lib/repositories/date-poll-repository'
+import { z } from 'zod'
+import { revalidatePath } from 'next/cache'
+
+const rsvpSchema = z.object({
+  braai_id: z.string().uuid(),
+  attendee_name: z.string().min(1, 'Your name is required').max(80),
+  attendee_count: z.number().int().min(1).max(20),
+  browser_token: z.string().min(1),
+  claimed_item_ids: z.array(z.string().uuid()).optional(),
+})
+
+export type RsvpFormState = {
+  success?: boolean
+  error?: string
+  fieldErrors?: Partial<Record<string, string[]>>
+}
+
+export async function submitRsvpAction(
+  _prevState: RsvpFormState,
+  formData: FormData
+): Promise<RsvpFormState> {
+  let claimedItemIds: string[] = []
+  const claimedRaw = formData.get('claimed_item_ids')
+  if (claimedRaw && typeof claimedRaw === 'string') {
+    try { claimedItemIds = JSON.parse(claimedRaw) } catch { /* ignore */ }
+  }
+
+  const raw = {
+    braai_id: formData.get('braai_id'),
+    attendee_name: formData.get('attendee_name'),
+    attendee_count: Number(formData.get('attendee_count') ?? 1),
+    browser_token: formData.get('browser_token'),
+    claimed_item_ids: claimedItemIds,
+  }
+
+  const parsed = rsvpSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors }
+  }
+
+  const { data, error } = await submitRsvp(parsed.data)
+  if (error || !data) {
+    return { error: error ?? 'Failed to RSVP. Please try again.' }
+  }
+
+  revalidatePath(`/braai/${formData.get('slug')}`)
+  return { success: true }
+}
+
+export async function cancelRsvpAction(
+  _prevState: RsvpFormState,
+  formData: FormData
+): Promise<RsvpFormState> {
+  const braaiId = formData.get('braai_id') as string
+  const browserToken = formData.get('browser_token') as string
+  const slug = formData.get('slug') as string
+
+  if (!braaiId || !browserToken) return { error: 'Missing data' }
+
+  const { error } = await cancelRsvp(braaiId, browserToken)
+  if (error) return { error }
+
+  revalidatePath(`/braai/${slug}`)
+  return { success: true }
+}
+
+const pollVoteSchema = z.object({
+  poll_option_id: z.string().uuid(),
+  voter_name: z.string().min(1, 'Your name is required').max(80),
+  slug: z.string(),
+})
+
+export type PollVoteState = {
+  success?: boolean
+  error?: string
+}
+
+export async function submitPollVoteAction(
+  _prevState: PollVoteState,
+  formData: FormData
+): Promise<PollVoteState> {
+  const raw = {
+    poll_option_id: formData.get('poll_option_id'),
+    voter_name: formData.get('voter_name'),
+    slug: formData.get('slug'),
+  }
+
+  const parsed = pollVoteSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { error: 'Invalid vote data' }
+  }
+
+  const { error } = await addVote(parsed.data.poll_option_id, parsed.data.voter_name)
+  if (error) return { error }
+
+  revalidatePath(`/braai/${parsed.data.slug}`)
+  return { success: true }
+}
