@@ -5,6 +5,7 @@ import { updateProfile } from '@/lib/services/organiser-service'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { BRAAI_TITLES } from '@/lib/config/event-options'
+import { headers } from 'next/headers'
 
 const profileSchema = z.object({
   display_name: z.string().min(1, 'Display name is required').max(80),
@@ -53,4 +54,39 @@ export async function updateProfileAction(
   }
 
   redirect('/dashboard')
+}
+
+export type DeleteAccountState = { error?: string }
+
+export async function deleteAccountAction(
+  _prevState: DeleteAccountState,
+  formData: FormData
+): Promise<DeleteAccountState> {
+  const confirm = formData.get('confirm') as string
+
+  if (confirm !== 'DELETE') {
+    return { error: 'Please type DELETE to confirm.' }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const headersList = await headers()
+  const origin = headersList.get('origin') ?? ''
+
+  const res = await fetch(`${origin}/api/auth/delete-account`, {
+    method: 'POST',
+    headers: { Cookie: headersList.get('cookie') ?? '' },
+  })
+
+  if (!res.ok) {
+    return { error: 'Failed to delete account. Please try again.' }
+  }
+
+  await supabase.auth.signOut()
+  redirect('/')
 }

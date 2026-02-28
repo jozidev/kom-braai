@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getOrganiserById } from '@/lib/repositories/organiser-repository'
 import { ProfileForm } from '@/components/dashboard/profile-form'
+import { DeleteAccountDialog } from '@/components/dashboard/delete-account-dialog'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -28,6 +29,17 @@ export default async function ProfilePage() {
         </p>
       </div>
       <ProfileForm organiser={organiser} />
+
+      {/* Danger zone */}
+      <div className="rounded-lg border border-destructive/30 p-4 space-y-3">
+        <div>
+          <h2 className="text-sm font-semibold text-destructive">Danger zone</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Permanently delete your account and all associated braais, RSVPs, and bring-lists.
+          </p>
+        </div>
+        <DeleteAccountDialog />
+      </div>
     </div>
   )
 }
