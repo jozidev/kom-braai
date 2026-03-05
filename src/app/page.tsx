@@ -7,13 +7,28 @@ import { createClient } from '@/lib/supabase/server'
 export const metadata: Metadata = {
   title: 'Kom Braai — Organise your braai, share the link',
   description:
-    'The easiest way to organise a braai and invite your mates. Create an event, share a link, track who\'s coming. No app required.',
+    'The easiest way to organise a braai and invite your mates. Create a free braai invitation, share a link on WhatsApp, and track who\'s coming. No app download required.',
+  keywords: ['braai invitation', 'braai organiser', 'invite to braai', 'braai RSVP', 'South African braai app', 'online braai invite'],
   openGraph: {
-    title: 'Kom Braai',
+    title: 'Kom Braai — Organise your braai, share the link',
     description:
-      'The easiest way to organise a braai and invite your mates.',
+      'Create a free braai invitation, share a link on WhatsApp, and track who\'s coming.',
     type: 'website',
+    url: 'https://kombraai.app',
   },
+}
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://kombraai.app'
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Kom Braai',
+  url: APP_URL,
+  description: 'Organise a braai and invite your mates with a shareable link. Free RSVP tracking, date polls, and supply lists.',
+  applicationCategory: 'LifestyleApplication',
+  operatingSystem: 'Web',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
 }
 
 const FEATURES = [
@@ -45,6 +60,10 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-950 via-amber-900 to-orange-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <div className="mx-auto max-w-2xl px-4 pt-20 pb-12 text-center space-y-6">
         <Flame className="mx-auto h-16 w-16 text-orange-300 drop-shadow-lg" aria-hidden="true" />

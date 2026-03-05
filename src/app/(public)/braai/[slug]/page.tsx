@@ -95,8 +95,34 @@ export default async function BraaiInvitePage({ params }: PageProps) {
   // Look up previously voted poll option
   const votedPollOptionId = cookieStore.get(`kom-braai-poll-${braai.id}`)?.value ?? null
 
+  // Event JSON-LD for Google rich results
+  const eventJsonLd = braai.event_date ? {
+    '@context': 'https://schema.org',
+    '@type': 'SocialEvent',
+    name: braai.title,
+    description: braai.description ?? `${braai.title} — join us for a braai!`,
+    startDate: braai.event_date,
+    location: {
+      '@type': 'Place',
+      name: braai.venue_name,
+      address: { '@type': 'PostalAddress', streetAddress: braai.venue_address },
+    },
+    url: inviteUrl,
+    organizer: { '@type': 'Person', name: braai.organiser.display_name },
+    eventStatus: braai.status === 'cancelled'
+      ? 'https://schema.org/EventCancelled'
+      : 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  } : null
+
   return (
     <WeatherBackground>
+      {eventJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+        />
+      )}
       <RealtimeRefresher braaiId={braai.id} />
       {braai.status === 'cancelled' ? (
         <CancelledCard braai={braai} inviteUrl={inviteUrl} />
