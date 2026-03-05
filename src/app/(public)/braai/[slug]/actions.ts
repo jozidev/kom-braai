@@ -1,6 +1,6 @@
 'use server'
 
-import { submitRsvp, cancelRsvp } from '@/lib/services/rsvp-service'
+import { submitRsvp, cancelRsvp, declineRsvp } from '@/lib/services/rsvp-service'
 import { addVote } from '@/lib/repositories/date-poll-repository'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
@@ -65,6 +65,38 @@ export async function cancelRsvpAction(
   if (error) return { error }
 
   revalidatePath(`/braai/${slug}`)
+  return { success: true }
+}
+
+const declineSchema = z.object({
+  braai_id: z.string().uuid(),
+  attendee_name: z.string().min(1, 'Your name is required').max(80),
+  browser_token: z.string().min(1),
+})
+
+export async function declineRsvpAction(
+  _prevState: RsvpFormState,
+  formData: FormData
+): Promise<RsvpFormState> {
+  const raw = {
+    braai_id: formData.get('braai_id'),
+    attendee_name: formData.get('attendee_name'),
+    browser_token: formData.get('browser_token'),
+  }
+
+  const parsed = declineSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors }
+  }
+
+  const { error } = await declineRsvp(
+    parsed.data.braai_id,
+    parsed.data.browser_token,
+    parsed.data.attendee_name
+  )
+  if (error) return { error: 'Failed to submit. Please try again.' }
+
+  revalidatePath(`/braai/${formData.get('slug')}`)
   return { success: true }
 }
 
