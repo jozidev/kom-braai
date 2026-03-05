@@ -3,23 +3,52 @@
 import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { MessageCircle } from 'lucide-react'
 import { confirmPollDateAction, type ActionState } from '@/app/(auth)/dashboard/braai/[id]/actions'
 import type { PollOptionWithVotes } from '@/lib/repositories/date-poll-repository'
 
 type ConfirmDateFormProps = {
   braaiId: string
+  braaiTitle: string
+  inviteUrl: string
   pollOptions: PollOptionWithVotes[]
 }
 
 const initialState: ActionState = {}
 
-export function ConfirmDateForm({ braaiId, pollOptions }: ConfirmDateFormProps) {
+export function ConfirmDateForm({ braaiId, braaiTitle, inviteUrl, pollOptions }: ConfirmDateFormProps) {
   const [state, formAction, isPending] = useActionState(confirmPollDateAction, initialState)
 
   useEffect(() => {
-    if (state.success) toast.success('Date confirmed! The invite will now show the fixed date.')
     if (state.error) toast.error(state.error)
   }, [state])
+
+  if (state.success && state.confirmedDate) {
+    const dateLabel = new Date(state.confirmedDate + 'T00:00:00').toLocaleDateString('en-ZA', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    })
+    const message = `Date confirmed! ${braaiTitle} is on ${dateLabel}. Update your RSVP here: ${inviteUrl}`
+
+    function shareOnWhatsApp() {
+      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer')
+    }
+
+    return (
+      <div className="space-y-4">
+        <p className="text-sm font-semibold text-green-700">Date confirmed: {dateLabel}</p>
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-3">
+          <p className="text-sm font-semibold text-amber-900">Your guests don&apos;t know yet!</p>
+          <p className="text-sm text-amber-800">
+            Send the invite link again so everyone sees the confirmed date and can update their RSVP.
+          </p>
+          <Button type="button" onClick={shareOnWhatsApp} className="gap-2 bg-green-600 hover:bg-green-700 text-white w-full">
+            <MessageCircle className="h-4 w-4" />
+            Send date update on WhatsApp
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   const sorted = [...pollOptions].sort((a, b) => b.vote_count - a.vote_count)
   const maxVotes = sorted[0]?.vote_count ?? 0
@@ -77,9 +106,6 @@ export function ConfirmDateForm({ braaiId, pollOptions }: ConfirmDateFormProps) 
 
           {state.error && (
             <p className="text-sm text-destructive">{state.error}</p>
-          )}
-          {state.success && (
-            <p className="text-sm text-green-600">Date confirmed! The invite page will show the fixed date.</p>
           )}
 
           <Button type="submit" disabled={isPending} className="w-full">

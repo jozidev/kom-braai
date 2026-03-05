@@ -168,7 +168,7 @@ export default async function BraaiDetailPage({
             <CardTitle className="text-base">Date poll</CardTitle>
           </CardHeader>
           <CardContent>
-            <ConfirmDateForm braaiId={id} pollOptions={pollOptions} />
+            <ConfirmDateForm braaiId={id} braaiTitle={braai.title} inviteUrl={inviteUrl} pollOptions={pollOptions} />
           </CardContent>
         </Card>
       )}

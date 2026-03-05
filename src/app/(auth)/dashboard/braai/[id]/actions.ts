@@ -17,7 +17,7 @@ async function getAuthenticatedUser() {
 
 // ── Cancel braai ─────────────────────────────────────────────────────────────
 
-export type ActionState = { error?: string; success?: boolean }
+export type ActionState = { error?: string; success?: boolean; confirmedDate?: string }
 
 export async function cancelBraaiAction(
   _prev: ActionState,
@@ -52,7 +52,7 @@ export async function confirmPollDateAction(
   if (error) return { error }
 
   revalidatePath(`/dashboard/braai/${braaiId}`)
-  return { success: true }
+  return { success: true, confirmedDate }
 }
 
 // ── Update braai ──────────────────────────────────────────────────────────────
