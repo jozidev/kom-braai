@@ -84,12 +84,16 @@ export default async function BraaiInvitePage({ params }: PageProps) {
       ? (await getPollOptions(braai.id)).data
       : []
 
-  // Look up existing RSVP via browser token cookie (task 4.8)
   const cookieStore = await cookies()
+
+  // Look up existing RSVP via browser token cookie
   const browserToken = cookieStore.get('kom-braai-token')?.value ?? null
   const existingRsvp = browserToken
     ? (await getRsvpByToken(braai.id, browserToken)).data
     : null
+
+  // Look up previously voted poll option
+  const votedPollOptionId = cookieStore.get(`kom-braai-poll-${braai.id}`)?.value ?? null
 
   return (
     <WeatherBackground>
@@ -102,6 +106,7 @@ export default async function BraaiInvitePage({ params }: PageProps) {
           weather={weather}
           existingRsvp={existingRsvp}
           pollOptions={pollOptions}
+          votedPollOptionId={votedPollOptionId}
           inviteUrl={inviteUrl}
         />
       )}

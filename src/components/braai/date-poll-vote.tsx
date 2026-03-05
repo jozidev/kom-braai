@@ -11,22 +11,33 @@ type DatePollVoteProps = {
   braaiId: string
   braaiSlug: string
   options: PollOptionWithVotes[]
+  votedOptionId: string | null
 }
 
 const initialState: PollVoteState = {}
 
-export function DatePollVote({ braaiId, braaiSlug, options }: DatePollVoteProps) {
+export function DatePollVote({ braaiId, braaiSlug, options, votedOptionId }: DatePollVoteProps) {
   const [state, formAction, isPending] = useActionState(submitPollVoteAction, initialState)
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null)
   const [voterName, setVoterName] = useState('')
 
   const maxVotes = Math.max(...options.map((o) => o.vote_count), 1)
 
-  if (state.success) {
+  const alreadyVotedOption = votedOptionId ? options.find((o) => o.id === votedOptionId) : null
+
+  if (state.success || alreadyVotedOption) {
+    const votedDate = alreadyVotedOption
+      ? new Date(alreadyVotedOption.proposed_date + 'T00:00:00').toLocaleDateString('en-ZA', {
+          weekday: 'long', day: 'numeric', month: 'long',
+        })
+      : null
     return (
-      <div className="rounded-xl bg-white/80 p-6 text-center shadow-sm">
+      <div className="rounded-xl bg-white/80 p-6 text-center shadow-sm space-y-1">
         <Check className="mx-auto mb-2 h-8 w-8 text-green-600" />
-        <p className="font-semibold">Vote recorded! Thanks {voterName}.</p>
+        <p className="font-semibold">
+          {state.success ? `Vote recorded! Thanks ${voterName}.` : 'You already voted.'}
+        </p>
+        {votedDate && <p className="text-sm text-muted-foreground">You voted for {votedDate}.</p>}
       </div>
     )
   }
