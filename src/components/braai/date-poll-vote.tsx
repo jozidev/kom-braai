@@ -8,13 +8,14 @@ import { Check } from 'lucide-react'
 import type { PollOptionWithVotes } from '@/lib/repositories/date-poll-repository'
 
 type DatePollVoteProps = {
+  braaiId: string
   braaiSlug: string
   options: PollOptionWithVotes[]
 }
 
 const initialState: PollVoteState = {}
 
-export function DatePollVote({ braaiSlug, options }: DatePollVoteProps) {
+export function DatePollVote({ braaiId, braaiSlug, options }: DatePollVoteProps) {
   const [state, formAction, isPending] = useActionState(submitPollVoteAction, initialState)
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null)
   const [voterName, setVoterName] = useState('')
@@ -80,6 +81,8 @@ export function DatePollVote({ braaiSlug, options }: DatePollVoteProps) {
         <form action={formAction} className="space-y-3">
           <input type="hidden" name="poll_option_id" value={selectedOptionId} />
           <input type="hidden" name="slug" value={braaiSlug} />
+          <input type="hidden" name="braai_id" value={braaiId} />
+          <input type="hidden" name="proposed_date" value={options.find((o) => o.id === selectedOptionId)?.proposed_date ?? ''} />
           <Input
             name="voter_name"
             value={voterName}

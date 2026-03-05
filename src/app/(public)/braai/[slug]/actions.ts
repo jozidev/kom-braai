@@ -1,6 +1,7 @@
 'use server'
 
 import { submitRsvp, cancelRsvp, declineRsvp } from '@/lib/services/rsvp-service'
+import { sendRsvpNotification, sendPollVoteNotification } from '@/lib/services/email-service'
 import { addVote } from '@/lib/repositories/date-poll-repository'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
@@ -46,6 +47,9 @@ export async function submitRsvpAction(
   if (error || !data) {
     return { error: error ?? 'Failed to RSVP. Please try again.' }
   }
+
+  // Fire-and-forget — don't block the RSVP response
+  sendRsvpNotification(parsed.data.braai_id, parsed.data.attendee_name, 'attending')
 
   revalidatePath(`/braai/${formData.get('slug')}`)
   return { success: true }
@@ -96,6 +100,9 @@ export async function declineRsvpAction(
   )
   if (error) return { error: 'Failed to submit. Please try again.' }
 
+  // Fire-and-forget — don't block the decline response
+  sendRsvpNotification(parsed.data.braai_id, parsed.data.attendee_name, 'declined')
+
   revalidatePath(`/braai/${formData.get('slug')}`)
   return { success: true }
 }
@@ -104,6 +111,8 @@ const pollVoteSchema = z.object({
   poll_option_id: z.string().uuid(),
   voter_name: z.string().min(1, 'Your name is required').max(80),
   slug: z.string(),
+  braai_id: z.string().uuid(),
+  proposed_date: z.string(),
 })
 
 export type PollVoteState = {
@@ -119,6 +128,8 @@ export async function submitPollVoteAction(
     poll_option_id: formData.get('poll_option_id'),
     voter_name: formData.get('voter_name'),
     slug: formData.get('slug'),
+    braai_id: formData.get('braai_id'),
+    proposed_date: formData.get('proposed_date'),
   }
 
   const parsed = pollVoteSchema.safeParse(raw)
@@ -128,6 +139,9 @@ export async function submitPollVoteAction(
 
   const { error } = await addVote(parsed.data.poll_option_id, parsed.data.voter_name)
   if (error) return { error }
+
+  // Fire-and-forget — don't block the vote response
+  sendPollVoteNotification(parsed.data.braai_id, parsed.data.voter_name, parsed.data.proposed_date)
 
   revalidatePath(`/braai/${parsed.data.slug}`)
   return { success: true }
