@@ -5,6 +5,19 @@ import { sendRsvpNotification, sendPollVoteNotification } from '@/lib/services/e
 import { addVote } from '@/lib/repositories/date-poll-repository'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
+
+const TOKEN_COOKIE_MAX_AGE = 365 * 24 * 60 * 60 // 1 year
+
+async function setBrowserTokenCookie(token: string) {
+  const cookieStore = await cookies()
+  cookieStore.set('kom-braai-token', token, {
+    maxAge: TOKEN_COOKIE_MAX_AGE,
+    path: '/',
+    sameSite: 'lax',
+    httpOnly: true,
+  })
+}
 
 const rsvpSchema = z.object({
   braai_id: z.string().uuid(),
@@ -51,6 +64,7 @@ export async function submitRsvpAction(
   // Fire-and-forget — don't block the RSVP response
   sendRsvpNotification(parsed.data.braai_id, parsed.data.attendee_name, 'attending')
 
+  await setBrowserTokenCookie(parsed.data.browser_token)
   revalidatePath(`/braai/${formData.get('slug')}`)
   return { success: true }
 }
@@ -68,6 +82,7 @@ export async function cancelRsvpAction(
   const { error } = await cancelRsvp(braaiId, browserToken)
   if (error) return { error }
 
+  await setBrowserTokenCookie(browserToken)
   revalidatePath(`/braai/${slug}`)
   return { success: true }
 }
@@ -103,6 +118,7 @@ export async function declineRsvpAction(
   // Fire-and-forget — don't block the decline response
   sendRsvpNotification(parsed.data.braai_id, parsed.data.attendee_name, 'declined')
 
+  await setBrowserTokenCookie(parsed.data.browser_token)
   revalidatePath(`/braai/${formData.get('slug')}`)
   return { success: true }
 }
