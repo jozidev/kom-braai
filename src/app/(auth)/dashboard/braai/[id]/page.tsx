@@ -64,6 +64,7 @@ export default async function BraaiDetailPage({
   const { data: pollOptions } = isPoll ? await getPollOptions(id) : { data: [] }
 
   const attendingRsvps = braai.rsvps.filter((r) => r.status === 'attending')
+  const declinedRsvps = braai.rsvps.filter((r) => r.status === 'declined')
   const totalHeadcount = attendingRsvps.reduce((s, r) => s + r.attendee_count, 0)
 
   const badge = STATUS_BADGES[braai.status] ?? STATUS_BADGES.draft
@@ -196,6 +197,26 @@ export default async function BraaiDetailPage({
           )}
         </CardContent>
       </Card>
+
+      {/* Declined */}
+      {declinedRsvps.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">
+              Can&apos;t make it <span className="text-muted-foreground font-normal">({declinedRsvps.length})</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="divide-y text-sm">
+              {declinedRsvps.map((rsvp) => (
+                <li key={rsvp.id} className="py-2 text-muted-foreground">
+                  {rsvp.attendee_name}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Supply list */}
       <Card>
