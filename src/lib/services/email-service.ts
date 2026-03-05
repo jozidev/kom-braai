@@ -2,7 +2,9 @@ import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getBraaiById } from '@/lib/repositories/braai-repository'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? 'Kom Braai <noreply@kombraai.app>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://kombraai.app'
@@ -58,7 +60,7 @@ export async function sendPollVoteNotification(
 </body>
 </html>`
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to: user.email,
     subject: `📅 ${voterName} voted on a date for ${braai.title}`,
@@ -128,7 +130,7 @@ export async function sendRsvpNotification(
 </body>
 </html>`
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to: user.email,
     subject,
