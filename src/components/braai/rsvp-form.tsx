@@ -5,7 +5,7 @@ import { submitRsvpAction, cancelRsvpAction, declineRsvpAction, type RsvpFormSta
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Check, Minus, Plus, X, Flame } from 'lucide-react'
+import { Check, Minus, Plus, X, Flame, XCircle } from 'lucide-react'
 import type { Rsvp, SupplyItem } from '@/lib/types'
 
 type RsvpFormProps = {
