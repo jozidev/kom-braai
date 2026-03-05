@@ -63,7 +63,7 @@ export async function sendPollVoteNotification(
   await getResend().emails.send({
     from: FROM,
     to: user.email,
-    subject: `📅 ${voterName} voted on a date for ${braai.title}`,
+    subject: `${voterName} voted on a date for ${braai.title}`,
     html,
   }).catch((err) => {
     console.error('[email-service] sendPollVoteNotification failed:', err)
@@ -93,7 +93,7 @@ export async function sendRsvpNotification(
   const isAttending = status === 'attending'
 
   const subject = isAttending
-    ? `🔥 ${attendeeName} is coming to ${braai.title}!`
+    ? `${attendeeName} is coming to ${braai.title}!`
     : `${attendeeName} can't make it to ${braai.title}`
 
   const html = `
