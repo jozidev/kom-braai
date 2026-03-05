@@ -88,6 +88,9 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
                 <p className="font-bold text-stone-900 text-sm">
                   {isPoll ? 'Date to be confirmed' : formatDate(braai.event_date)}
                 </p>
+                {isPoll && (
+                  <p className="text-xs text-amber-700 mt-0.5 font-medium">Vote on your preferred date below ↓</p>
+                )}
                 {!isPoll && braai.event_time && (
                   <p className="text-xs text-stone-500 mt-0.5">{formatTime(braai.event_time)}</p>
                 )}

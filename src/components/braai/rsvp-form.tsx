@@ -5,7 +5,7 @@ import { submitRsvpAction, cancelRsvpAction, declineRsvpAction, type RsvpFormSta
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Check, Minus, Plus, X, Flame, XCircle } from 'lucide-react'
+import { Check, Minus, Plus, X, Flame } from 'lucide-react'
 import type { Rsvp, SupplyItem } from '@/lib/types'
 
 type RsvpFormProps = {
@@ -46,7 +46,6 @@ export function RsvpForm({
   const [attendeeCount, setAttendeeCount] = useState(existingRsvp?.attendee_count ?? 1)
   const [claimedIds, setClaimedIds] = useState<string[]>([])
   const [browserToken, setBrowserToken] = useState('')
-  const [declineMode, setDeclineMode] = useState(false)
 
   useEffect(() => {
     setBrowserToken(getBrowserToken())
@@ -242,45 +241,27 @@ export function RsvpForm({
           </div>
         )}
 
-        <Button type="submit" size="lg" disabled={isPending} className="w-full">
-          {isPending ? 'RSVPing...' : <><Flame className="h-4 w-4 mr-2 inline" aria-hidden="true" />I&apos;m coming!</>}
-        </Button>
-      </form>
+        {(state.error || declineState.error) && (
+          <p className="text-sm text-destructive">{state.error ?? declineState.error}</p>
+        )}
 
-      {/* Can't make it */}
-      {!declineMode ? (
-        <button
-          type="button"
-          onClick={() => setDeclineMode(true)}
-          className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors pt-1"
-        >
-          Can&apos;t make it?
-        </button>
-      ) : (
-        <form action={declineFormAction} className="space-y-3 pt-2 border-t">
-          <p className="text-sm font-medium text-muted-foreground">Let the organiser know you can&apos;t make it</p>
-          <input type="hidden" name="braai_id" value={braaiId} />
-          <input type="hidden" name="slug" value={braaiSlug} />
-          <input type="hidden" name="browser_token" value={browserToken} />
-          <div className="space-y-1.5">
-            <Label htmlFor="decline_name">Your name</Label>
-            <Input id="decline_name" name="attendee_name" placeholder="e.g. Jaco" required autoComplete="given-name" />
-            {declineState.fieldErrors?.attendee_name && (
-              <p className="text-sm text-destructive">{declineState.fieldErrors.attendee_name[0]}</p>
-            )}
-          </div>
-          {declineState.error && <p className="text-sm text-destructive">{declineState.error}</p>}
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => setDeclineMode(false)} className="flex-1">
-              Back
-            </Button>
-            <Button type="submit" variant="secondary" size="sm" disabled={declinePending} className="flex-1 gap-1.5">
-              <XCircle className="h-4 w-4" />
-              {declinePending ? 'Sending…' : "Can't make it"}
-            </Button>
-          </div>
-        </form>
-      )}
+        <div className="flex gap-2">
+          <Button
+            type="submit"
+            formAction={declineFormAction}
+            variant="outline"
+            size="sm"
+            disabled={declinePending}
+            className="flex-1"
+          >
+            {declinePending ? 'Sending…' : "Can't make it"}
+          </Button>
+          <Button type="submit" size="sm" disabled={isPending} className="flex-1 gap-1.5">
+            <Flame className="h-4 w-4" aria-hidden="true" />
+            {isPending ? 'RSVPing…' : "I'm coming!"}
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }
