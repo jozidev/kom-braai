@@ -223,7 +223,7 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
           {/* RSVP / Date poll */}
           {!isCancelled && (
             isPoll ? (
-              <DatePollVote braaiSlug={braai.slug} options={pollOptions} />
+              <DatePollVote braaiId={braai.id} braaiSlug={braai.slug} options={pollOptions} />
             ) : (
               <RsvpForm
                 braaiId={braai.id}
