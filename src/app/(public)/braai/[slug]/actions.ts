@@ -156,8 +156,16 @@ export async function submitPollVoteAction(
   const { error } = await addVote(parsed.data.poll_option_id, parsed.data.voter_name)
   if (error) return { error }
 
-  // Fire-and-forget — don't block the vote response
-  sendPollVoteNotification(parsed.data.braai_id, parsed.data.voter_name, parsed.data.proposed_date)
+  const cookieStore = await cookies()
+  cookieStore.set(`kom-braai-poll-${parsed.data.braai_id}`, parsed.data.poll_option_id, {
+    maxAge: TOKEN_COOKIE_MAX_AGE,
+    path: '/',
+    sameSite: 'lax',
+    httpOnly: true,
+  })
+
+  // Await so Vercel doesn't kill the function before the email sends
+  await sendPollVoteNotification(parsed.data.braai_id, parsed.data.voter_name, parsed.data.proposed_date)
 
   revalidatePath(`/braai/${parsed.data.slug}`)
   return { success: true }

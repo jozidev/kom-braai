@@ -14,6 +14,7 @@ type InviteCardProps = {
   weather: WeatherData
   existingRsvp: Rsvp | null
   pollOptions: PollOptionWithVotes[]
+  votedPollOptionId: string | null
   inviteUrl: string
 }
 
@@ -35,7 +36,7 @@ function formatTime(timeStr: string | null): string {
 // Inner section card — sits inside the main white card
 const INNER = 'rounded-xl bg-stone-50 p-4 space-y-3'
 
-export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUrl }: InviteCardProps) {
+export function InviteCard({ braai, weather, existingRsvp, pollOptions, votedPollOptionId, inviteUrl }: InviteCardProps) {
   const isCancelled = braai.status === 'cancelled'
   const isPoll = braai.date_mode === 'poll' && !braai.event_date
 
@@ -223,7 +224,7 @@ export function InviteCard({ braai, weather, existingRsvp, pollOptions, inviteUr
           {/* RSVP / Date poll */}
           {!isCancelled && (
             isPoll ? (
-              <DatePollVote braaiId={braai.id} braaiSlug={braai.slug} options={pollOptions} />
+              <DatePollVote braaiId={braai.id} braaiSlug={braai.slug} options={pollOptions} votedOptionId={votedPollOptionId} />
             ) : (
               <RsvpForm
                 braaiId={braai.id}
